@@ -13,6 +13,11 @@ class ThreadStore {
 	public const STATUS_DELETED = 2;
 	public const STATUS_MERGED  = 3;
 
+	/** Byte capacity of nbt_title. Limits are counted in characters, storage in
+	 * bytes, and a multibyte title cut at the byte boundary is invalid UTF-8 —
+	 * which makes the whole board fail to render. */
+	public const MAX_TITLE_BYTES = 800;
+
 	public function __construct(
 		private readonly IConnectionProvider $dbProvider
 	) {}

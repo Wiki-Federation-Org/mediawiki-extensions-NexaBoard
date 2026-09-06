@@ -47,14 +47,25 @@ class ApiBoardDelete extends ApiBase {
 
 		$result = [ 'result' => 'success', 'threads' => [], 'messages' => [], 'replies' => 0 ];
 
+		// Everything is checked before anything is deleted. Deleting as we go
+		// means one bad id partway through leaves the earlier threads gone behind
+		// an error report saying the request failed.
 		foreach ( $threadIds as $threadId ) {
 			$thread = $this->threadStore->getById( $threadId );
 			if ( !$thread ) {
 				$this->dieWithError( [ 'apierror-invalidparameter', 'threadid' ], 'invalidthread' );
 			}
-
 			$this->assertCanModerateThread( $user, $thread );
+		}
+		foreach ( $msgIds as $msgId ) {
+			$msg = $this->messageStore->getById( $msgId );
+			if ( !$msg ) {
+				$this->dieWithError( [ 'apierror-invalidparameter', 'msgid' ], 'invalidmsg' );
+			}
+			$this->assertCanModerateMessage( $user, $msg );
+		}
 
+		foreach ( $threadIds as $threadId ) {
 			if ( $scope === 'replies' ) {
 				$result['replies'] += $this->manager->deleteAllReplies( $threadId, $user, $reason );
 				continue;
@@ -70,13 +81,6 @@ class ApiBoardDelete extends ApiBase {
 		}
 
 		foreach ( $msgIds as $msgId ) {
-			$msg = $this->messageStore->getById( $msgId );
-			if ( !$msg ) {
-				$this->dieWithError( [ 'apierror-invalidparameter', 'msgid' ], 'invalidmsg' );
-			}
-
-			$this->assertCanModerateMessage( $user, $msg );
-
 			try {
 				$ok = $undo
 					? $this->manager->restoreMessage( $msgId, $user, $reason )

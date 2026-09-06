@@ -136,12 +136,16 @@
 	"nexaboard-error-transfer-nouser": "That user does not exist.",
 	"nexaboard-error-transfer-same": "The thread is already on that user's board.",
 	"nexaboard-error-transfer-failed": "The thread could not be transferred.",
-	"logentry-nexaboard-transfer": "$1 {{GENDER:$2|moved}} thread #$4 “$5” from $6's board to $3",
+	"logentry-nexaboard-transfer": "$1 {{GENDER:$2|moved}} thread #$4 \"$5\" from $6's board to $3",
 	"nexaboard-merged-label": "MERGED",
 	"nexaboard-merged-into": "Merged into thread #$1 — its messages are there now.",
 	"nexaboard-error-reopen-notyours": "Only the user who closed this thread, or a moderator, can reopen it.",
 	"nexaboard-edited-marker-by": "Edited $1 by $2",
 	"nexaboard-error-move-op": "The first post of a thread cannot be moved on its own. Transfer the whole thread instead.",
 	"nexaboard-hidden-shown": "Including {{PLURAL:$1|$1 deleted or merged thread|$1 deleted or merged threads}} on this page.",
-	"nexaboard-hidden-none": "No deleted or merged threads on this page."
+	"nexaboard-hidden-none": "No deleted or merged threads on this page.",
+	"nexaboard-error-toolong-storage": "That is too long to store. Please shorten it and try again.",
+	"nexaboard-error-merge-target-state": "Threads can only be merged into an open or closed thread.",
+	"nexaboard-error-merge-source-state": "A deleted or already-merged thread cannot be merged.",
+	"nexaboard-error-too-deep": "This reply chain is too deep. Reply higher up the thread instead."
 }

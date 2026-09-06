@@ -9,6 +9,7 @@ use MediaWiki\Extension\NexaBoard\NotificationMode;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Extension\NexaBoard\Store\MessageStore;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiBoardReply extends ApiBase {
@@ -46,12 +47,18 @@ class ApiBoardReply extends ApiBase {
 		if ( mb_strlen( $body ) > $maxBody ) {
 			$this->dieWithError( [ 'nexaboard-error-toolong', $maxBody ], 'bodytoolong' );
 		}
+		if ( strlen( $body ) > MessageStore::MAX_BODY_BYTES ) {
+			$this->dieWithError( 'nexaboard-error-toolong-storage', 'bodytoolongbytes' );
+		}
 
 		try {
 			$msgId = $this->manager->reply(
 				$threadId, $user, $body, $quoteId, NotificationMode::Send, $parentId
 			);
 		} catch ( \RuntimeException $e ) {
+			if ( str_contains( $e->getMessage(), 'too deep' ) ) {
+				$this->dieWithError( 'nexaboard-error-too-deep', 'toodeep' );
+			}
 			$this->dieWithError( [ 'apierror-invalidparameter', 'threadid' ], 'invalidthread' );
 		} catch ( \Exception $e ) {
 			$this->dieWithError( 'nexaboard-error-generic', 'dbfail' );

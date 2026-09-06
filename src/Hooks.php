@@ -34,6 +34,14 @@ class Hooks {
 			"$sqlDir/patch-nexaboard_message-nbm_edited_by.sql"
 		);
 
+		// Title and body were sized in bytes while their limits are counted in
+		// characters, so multibyte text was truncated mid-character.
+		$updater->modifyExtensionField(
+			'nexaboard_thread',
+			'nbt_title',
+			"$sqlDir/patch-widen-title-and-body.sql"
+		);
+
 		$updater->addExtensionUpdate( [ [ self::class, 'createGuidelinesPage' ] ] );
 	}
 

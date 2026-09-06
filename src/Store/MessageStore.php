@@ -8,6 +8,9 @@ use Wikimedia\Rdbms\SelectQueryBuilder;
 
 class MessageStore {
 
+	/** Byte capacity of nbm_body. See ThreadStore::MAX_TITLE_BYTES. */
+	public const MAX_BODY_BYTES = 16777215;
+
 	private const COLS = [
 		'nbm_id', 'nbm_thread_id', 'nbm_is_op', 'nbm_parent_id',
 		'nbm_author_id', 'nbm_author_name', 'nbm_body', 'nbm_quote_id',

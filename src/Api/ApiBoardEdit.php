@@ -59,6 +59,9 @@ class ApiBoardEdit extends ApiBase {
 		if ( mb_strlen( $body ) > $maxBody ) {
 			$this->dieWithError( [ 'nexaboard-error-toolong', $maxBody ], 'bodytoolong' );
 		}
+		if ( strlen( $body ) > MessageStore::MAX_BODY_BYTES ) {
+			$this->dieWithError( 'nexaboard-error-toolong-storage', 'bodytoolongbytes' );
+		}
 
 		// A title is only meaningful on the originating post; ignore it elsewhere.
 		if ( $title !== null && (int)$msg->nbm_is_op ) {
@@ -68,6 +71,9 @@ class ApiBoardEdit extends ApiBase {
 			$maxTitle = $config->get( 'NexaBoardMaxTitleLength' );
 			if ( mb_strlen( $title ) > $maxTitle ) {
 				$this->dieWithError( [ 'nexaboard-error-toolong', $maxTitle ], 'titletoolong' );
+			}
+			if ( strlen( $title ) > ThreadStore::MAX_TITLE_BYTES ) {
+				$this->dieWithError( 'nexaboard-error-toolong-storage', 'titletoolongbytes' );
 			}
 		} else {
 			$title = null;

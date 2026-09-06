@@ -5,7 +5,7 @@
 CREATE TABLE /*_*/nexaboard_thread (
   nbt_id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
   nbt_board_user_id INT UNSIGNED NOT NULL,
-  nbt_title VARBINARY(200) NOT NULL,
+  nbt_title VARBINARY(800) NOT NULL,
   nbt_status TINYINT UNSIGNED DEFAULT 0 NOT NULL,
   nbt_reply_count INT UNSIGNED DEFAULT 0 NOT NULL,
   nbt_created BINARY(14) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE /*_*/nexaboard_message (
   nbm_parent_id BIGINT UNSIGNED DEFAULT NULL,
   nbm_author_id INT UNSIGNED NOT NULL,
   nbm_author_name VARBINARY(255) NOT NULL,
-  nbm_body BLOB NOT NULL,
+  nbm_body MEDIUMBLOB NOT NULL,
   nbm_quote_id BIGINT UNSIGNED DEFAULT NULL,
   nbm_created BINARY(14) NOT NULL,
   nbm_edited BINARY(14) DEFAULT NULL,

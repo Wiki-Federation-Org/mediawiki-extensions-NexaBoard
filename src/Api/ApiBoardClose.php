@@ -37,6 +37,10 @@ class ApiBoardClose extends ApiBase {
 
 		$done = [];
 
+		// Validate every id before touching any of them. Applying as we go means
+		// a bad id halfway through leaves the earlier threads already closed
+		// behind an error that says the request failed.
+		$threads = [];
 		foreach ( $threadIds as $threadId ) {
 			$thread = $this->threadStore->getById( $threadId );
 			if ( !$thread ) {
@@ -60,6 +64,10 @@ class ApiBoardClose extends ApiBase {
 				$this->dieWithError( 'nexaboard-error-reopen-notyours', 'notyourclose' );
 			}
 
+			$threads[] = $threadId;
+		}
+
+		foreach ( $threads as $threadId ) {
 			$ok = $reopen
 				? $this->manager->reopenThread( $threadId, $user, $reason )
 				: $this->manager->closeThread( $threadId, $user, $reason );

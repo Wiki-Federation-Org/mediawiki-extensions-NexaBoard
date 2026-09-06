@@ -88,6 +88,7 @@
 				"nexaboard-merge-select-label",
 				"nexaboard-merge-count",
 				"nexaboard-bulk-select-label",
+				"nexaboard-transfer-subject",
 				"nexaboard-transfer-confirm",
 				"nexaboard-error-transfer-notarget",
 				"nexaboard-error-reopen-notyours"

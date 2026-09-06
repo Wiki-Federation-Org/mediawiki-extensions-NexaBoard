@@ -35,17 +35,29 @@ class ApiBoardMerge extends ApiBase {
 		$sources  = array_map( 'intval', $params['sourcethread'] );
 		$reason   = trim( $params['reason'] ?? '' );
 
+		$mergeable = [ ThreadStore::STATUS_OPEN, ThreadStore::STATUS_CLOSED ];
+
 		$target = $this->threadStore->getById( $targetId );
 		if ( !$target ) {
 			$this->dieWithError( [ 'apierror-invalidparameter', 'targetthread' ], 'invalidthread' );
 		}
+		if ( !in_array( (int)$target->nbt_status, $mergeable, true ) ) {
+			$this->dieWithError( 'nexaboard-error-merge-target-state', 'targetnotmergeable' );
+		}
 
+		// Everything is validated before anything is merged: the manager applies
+		// the sources one at a time, so failing halfway would leave some merged
+		// and the rest not, behind an error saying the whole thing failed.
 		foreach ( $sources as $srcId ) {
 			if ( $srcId === $targetId ) {
 				$this->dieWithError( 'nexaboard-error-merge-self', 'mergeself' );
 			}
-			if ( !$this->threadStore->getById( $srcId ) ) {
+			$source = $this->threadStore->getById( $srcId );
+			if ( !$source ) {
 				$this->dieWithError( [ 'apierror-invalidparameter', 'sourcethread' ], 'invalidsource' );
+			}
+			if ( !in_array( (int)$source->nbt_status, $mergeable, true ) ) {
+				$this->dieWithError( 'nexaboard-error-merge-source-state', 'sourcenotmergeable' );
 			}
 		}
 

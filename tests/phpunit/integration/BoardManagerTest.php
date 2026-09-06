@@ -705,4 +705,123 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 		$this->assertContains( $source['thread_id'], $withHidden, 'merged thread revealed' );
 	}
 
+
+	/**
+	 * Limits are counted in characters but storage is sized in bytes. A title cut
+	 * at the byte boundary is invalid UTF-8, and the parser then throws while
+	 * rendering — taking the whole board down, not just that thread.
+	 */
+	public function testMultibyteTitleAndBodySurviveStorageIntact(): void {
+		$actor = $this->actor();
+		$max   = $this->getServiceContainer()->getMainConfig()->get( 'NexaBoardMaxTitleLength' );
+
+		$title = str_repeat( "\u{6F22}", $max );           // 3 bytes per character
+		$body  = str_repeat( "\u{1F600}", 20000 );         // 4 bytes per character
+
+		$thread = $this->manager()->createThread(
+			$actor->getId(), $actor, $title, $body, NotificationMode::Suppress
+		);
+
+		$storedTitle = $this->threadStore()->getById( $thread['thread_id'] )->nbt_title;
+		$this->assertTrue( mb_check_encoding( $storedTitle, 'UTF-8' ), 'title is valid UTF-8' );
+		$this->assertSame( $max, mb_strlen( $storedTitle, 'UTF-8' ), 'no characters lost' );
+
+		$storedBody = $this->messageStore()->getById( $thread['msg_id'] )->nbm_body;
+		$this->assertTrue( mb_check_encoding( $storedBody, 'UTF-8' ), 'body is valid UTF-8' );
+		$this->assertSame( 20000, mb_strlen( $storedBody, 'UTF-8' ) );
+	}
+
+	/**
+	 * Deleting a thread flags the thread, not its messages, so merging a deleted
+	 * source would carry still-live messages into a readable thread.
+	 */
+	public function testDeletedThreadCannotBeMerged(): void {
+		$actor  = $this->actor();
+		$source = $this->seedThread( $actor, 'Sensitive' );
+		$target = $this->seedThread( $actor, 'Public' );
+
+		$this->manager()->deleteThread( $source['thread_id'], $actor );
+
+		$this->expectException( RuntimeException::class );
+		$this->manager()->mergeThreads( [ $source['thread_id'] ], $target['thread_id'], $actor );
+	}
+
+	public function testCannotMergeIntoADeletedThread(): void {
+		$actor  = $this->actor();
+		$source = $this->seedThread( $actor, 'Live' );
+		$target = $this->seedThread( $actor, 'Gone' );
+
+		$this->manager()->deleteThread( $target['thread_id'], $actor );
+
+		$this->expectException( RuntimeException::class );
+		$this->manager()->mergeThreads( [ $source['thread_id'] ], $target['thread_id'], $actor );
+	}
+
+	/**
+	 * nbt_merged_into would be overwritten, pointing the tombstone at a thread
+	 * that never received the content.
+	 */
+	public function testAlreadyMergedThreadCannotBeMergedAgain(): void {
+		$actor = $this->actor();
+		$a = $this->seedThread( $actor, 'A' );
+		$b = $this->seedThread( $actor, 'B' );
+		$c = $this->seedThread( $actor, 'C' );
+
+		$this->manager()->mergeThreads( [ $a['thread_id'] ], $b['thread_id'], $actor );
+
+		try {
+			$this->manager()->mergeThreads( [ $a['thread_id'] ], $c['thread_id'], $actor );
+			$this->fail( 'expected the second merge to be refused' );
+		} catch ( RuntimeException $e ) {
+			// expected
+		}
+
+		$this->assertSame(
+			$b['thread_id'],
+			(int)$this->threadStore()->getById( $a['thread_id'] )->nbt_merged_into,
+			'the trail still points where the content actually went'
+		);
+	}
+
+	public function testReplyChainIsCappedAtMaxDepth(): void {
+		$actor  = $this->actor();
+		$thread = $this->seedThread( $actor );
+
+		$parent = null;
+		$accepted = 0;
+		for ( $i = 0; $i < BoardManager::MAX_REPLY_DEPTH + 5; $i++ ) {
+			try {
+				$parent = $this->manager()->reply(
+					$thread['thread_id'], $actor, "level $i", null, NotificationMode::Suppress, $parent
+				);
+				$accepted++;
+			} catch ( RuntimeException $e ) {
+				break;
+			}
+		}
+
+		$this->assertSame( BoardManager::MAX_REPLY_DEPTH, $accepted );
+	}
+
+	public function testAThreadNeedsATitle(): void {
+		$actor = $this->actor();
+
+		$this->expectException( RuntimeException::class );
+		$this->manager()->createThread( $actor->getId(), $actor, '   ', 'Body', NotificationMode::Suppress );
+	}
+
+	public function testDeletingNoRepliesWritesNoLogEntry(): void {
+		$actor  = $this->actor();
+		$thread = $this->seedThread( $actor );
+
+		$count = fn () => (int)$this->getDb()->newSelectQueryBuilder()
+			->select( 'COUNT(*)' )->from( 'logging' )
+			->where( [ 'log_type' => 'nexaboard', 'log_action' => 'deletereplies' ] )
+			->caller( __METHOD__ )->fetchField();
+
+		$before = $count();
+		$this->assertSame( 0, $this->manager()->deleteAllReplies( $thread['thread_id'], $actor ) );
+		$this->assertSame( $before, $count(), 'a no-op does not reach the moderation log' );
+	}
+
 }

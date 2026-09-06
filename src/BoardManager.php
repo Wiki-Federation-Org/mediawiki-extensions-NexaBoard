@@ -15,6 +15,14 @@ use Wikimedia\Timestamp\ConvertibleTimestamp;
 
 class BoardManager {
 
+	/**
+	 * How deep a reply chain may go. The renderer stops indenting at
+	 * SpecialNexaBoard::MAX_REPLY_DEPTH, but the stored data was unbounded, and
+	 * countDescendants() walks a branch recursively — so a long enough chain is a
+	 * stack-depth risk as well as an unreadable one.
+	 */
+	public const MAX_REPLY_DEPTH = 10;
+
 	public function __construct(
 		private readonly ThreadStore $threadStore,
 		private readonly MessageStore $messageStore,
@@ -62,6 +70,10 @@ class BoardManager {
 		string $body,
 		NotificationMode $notify = NotificationMode::Send
 	): array {
+		if ( trim( $title ) === '' ) {
+			throw new \RuntimeException( 'A thread needs a title' );
+		}
+
 		$now = ConvertibleTimestamp::now( TS_MW );
 		$dbw = $this->dbProvider->getPrimaryDatabase();
 
@@ -117,6 +129,18 @@ class BoardManager {
 				|| (int)$parent->nbm_deleted
 			) {
 				throw new \RuntimeException( 'Parent message not found in this thread' );
+			}
+
+			// Walk to the root to see how deep this reply would sit. A top-level
+			// reply is depth 0, so a chain may be MAX_REPLY_DEPTH long.
+			$depth = 1;
+			$walk  = $parent;
+			while ( $walk && $walk->nbm_parent_id !== null ) {
+				$depth++;
+				if ( $depth >= self::MAX_REPLY_DEPTH ) {
+					throw new \RuntimeException( 'Reply chain is too deep' );
+				}
+				$walk = $this->messageStore->getById( (int)$walk->nbm_parent_id );
 			}
 		}
 
@@ -344,11 +368,15 @@ class BoardManager {
 
 		$this->threadStore->recalcReplyCount( $threadId );
 
-		$this->logAction(
-			'deletereplies', $deleter, (int)$thread->nbt_board_user_id,
-			[ '4::thread' => $threadId, '5::count' => $count ],
-			$reason
-		);
+		// Nothing was removed, so there is nothing to record. Logging regardless
+		// fills the moderation log with "deleted 0 replies" entries.
+		if ( $count > 0 ) {
+			$this->logAction(
+				'deletereplies', $deleter, (int)$thread->nbt_board_user_id,
+				[ '4::thread' => $threadId, '5::count' => $count ],
+				$reason
+			);
+		}
 
 		return $count;
 	}
@@ -421,6 +449,16 @@ class BoardManager {
 			throw new \RuntimeException( 'Target thread not found' );
 		}
 
+		// Merging moves messages into the destination and renders them there, so
+		// the destination has to be a thread people can actually read. A deleted
+		// destination would hide live messages with no delete log entry; a merged
+		// one is a husk whose own content has already moved on.
+		if ( !in_array( (int)$target->nbt_status,
+			[ ThreadStore::STATUS_OPEN, ThreadStore::STATUS_CLOSED ], true )
+		) {
+			throw new \RuntimeException( 'Target thread is not open or closed' );
+		}
+
 		$boardUserId = (int)$target->nbt_board_user_id;
 
 		// Threads may only be merged within one board; merging across boards would
@@ -432,6 +470,17 @@ class BoardManager {
 			}
 			if ( (int)$source->nbt_board_user_id !== $boardUserId ) {
 				throw new \RuntimeException( 'Threads belong to different boards' );
+			}
+
+			// Deleting a thread flags the thread, not its messages, so merging a
+			// deleted source would carry still-live messages into a readable
+			// thread and undo the deletion. Re-merging an already-merged source
+			// would overwrite nbt_merged_into and lose the trail to where its
+			// content actually went.
+			if ( !in_array( (int)$source->nbt_status,
+				[ ThreadStore::STATUS_OPEN, ThreadStore::STATUS_CLOSED ], true )
+			) {
+				throw new \RuntimeException( "Source thread $srcId is not open or closed" );
 			}
 		}
 
@@ -465,7 +514,11 @@ class BoardManager {
 			'merge', $actor, $boardUserId,
 			[
 				'4::target'  => $targetThreadId,
-				'5::sources' => implode( ', ', $sourceThreadIds ),
+				// Prefixed here so the list reads like every other thread id in
+				// the log, which the message itself cannot do for a joined list.
+				'5::sources' => implode( ', ', array_map(
+					static fn ( $id ) => '#' . $id, $sourceThreadIds
+				) ),
 				'6::count'   => count( $sourceThreadIds ),
 			],
 			$reason

@@ -7,6 +7,8 @@ use MediaWiki\Api\ApiMain;
 use MediaWiki\Api\ApiUsageException;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
+use MediaWiki\Extension\NexaBoard\Store\MessageStore;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiBoardPost extends ApiBase {
@@ -43,6 +45,9 @@ class ApiBoardPost extends ApiBase {
 		if ( mb_strlen( $title ) > $maxTitle ) {
 			$this->dieWithError( [ 'nexaboard-error-toolong', $maxTitle ], 'titletoolong' );
 		}
+		if ( strlen( $title ) > ThreadStore::MAX_TITLE_BYTES ) {
+			$this->dieWithError( 'nexaboard-error-toolong-storage', 'titletoolongbytes' );
+		}
 
 		if ( $body === '' ) {
 			$this->dieWithError( 'nexaboard-error-nobody', 'nobody' );
@@ -51,6 +56,9 @@ class ApiBoardPost extends ApiBase {
 		$maxBody = $config->get( 'NexaBoardMaxBodyLength' );
 		if ( mb_strlen( $body ) > $maxBody ) {
 			$this->dieWithError( [ 'nexaboard-error-toolong', $maxBody ], 'bodytoolong' );
+		}
+		if ( strlen( $body ) > MessageStore::MAX_BODY_BYTES ) {
+			$this->dieWithError( 'nexaboard-error-toolong-storage', 'bodytoolongbytes' );
 		}
 
 		$boardUser = MediaWikiServices::getInstance()

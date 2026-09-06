@@ -143,5 +143,9 @@
 	"nexaboard-edited-marker-by": "Marker shown under a message that was last edited by somebody other than its author. Parameters:\\n* $1 - when the edit was made\\n* $2 - the username of the editor\\nCompare {{msg-mw|nexaboard-edited-marker}}, used when the author edited their own message.",
 	"nexaboard-error-move-op": "Error shown when someone tries to move a thread's originating post into another thread. Moving it would leave the source thread with nothing to display.",
 	"nexaboard-hidden-shown": "Note shown to moderators when the deleted-and-merged toggle is on and there are some on the current page. Parameters:\\n* $1 - how many deleted or merged threads are on this page",
-	"nexaboard-hidden-none": "Note shown to moderators when the deleted-and-merged toggle is on but the current page contains none, so that the toggle does not look broken."
+	"nexaboard-hidden-none": "Note shown to moderators when the deleted-and-merged toggle is on but the current page contains none, so that the toggle does not look broken.",
+	"nexaboard-error-toolong-storage": "Error shown when a title or body fits the configured character limit but still exceeds what the database column can hold, which would otherwise truncate it mid-character. Only reachable if the limits are configured above the column capacity.",
+	"nexaboard-error-merge-target-state": "Error shown when the merge destination is a deleted or already-merged thread. Merging into a deleted thread would hide live messages with no deletion recorded.",
+	"nexaboard-error-merge-source-state": "Error shown when a merge source is deleted or already merged. Merging a deleted thread would move its still-live messages into a readable thread and undo the deletion.",
+	"nexaboard-error-too-deep": "Error shown when a reply would nest deeper than BoardManager::MAX_REPLY_DEPTH allows."
 }

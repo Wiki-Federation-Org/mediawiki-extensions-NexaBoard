@@ -17,9 +17,9 @@
 			},
 			{
 				"name": "nbt_title",
-				"comment": "Thread subject/headline",
+				"comment": "Thread subject/headline. Sized in bytes at 4x the character limit so a title of NexaBoardMaxTitleLength characters fits whatever script it is written in",
 				"type": "binary",
-				"options": { "length": 200, "notnull": true }
+				"options": { "length": 800, "notnull": true }
 			},
 			{
 				"name": "nbt_status",
@@ -122,9 +122,9 @@
 			},
 			{
 				"name": "nbm_body",
-				"comment": "Message body (wikitext)",
+				"comment": "Message body (wikitext). Mediumblob so that a body of NexaBoardMaxBodyLength characters fits even at 4 bytes per character",
 				"type": "blob",
-				"options": { "length": 65535, "notnull": true }
+				"options": { "length": 16777215, "notnull": true }
 			},
 			{
 				"name": "nbm_quote_id",
