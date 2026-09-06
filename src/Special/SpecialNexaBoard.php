@@ -193,6 +193,25 @@ class SpecialNexaBoard extends SpecialPage {
 			$boardUser->getName(), $viewer, $threads, $showDeleted, $oldestFirst
 		);
 
+		// With the toggle on and nothing hidden to reveal, the page is identical
+		// to the page without it — which reads as the toggle being broken. Say
+		// what it found either way.
+		if ( $showDeleted ) {
+			$hidden = 0;
+			foreach ( $threads as $t ) {
+				$st = (int)$t->nbt_status;
+				if ( $st === ThreadStore::STATUS_DELETED || $st === ThreadStore::STATUS_MERGED ) {
+					$hidden++;
+				}
+			}
+
+			$html .= '<div class="mw-nexaboard-hidden-note">'
+				. ( $hidden
+					? wfMessage( 'nexaboard-hidden-shown' )->numParams( $hidden )->escaped()
+					: wfMessage( 'nexaboard-hidden-none' )->escaped() )
+				. '</div>';
+		}
+
 		if ( $canDelete && $threads ) {
 			$html .= $this->renderBulkPanel();
 		}
@@ -340,6 +359,10 @@ class SpecialNexaBoard extends SpecialPage {
 		if ( $isClosed ) {
 			$html .= ' <span class="mw-nexaboard-closed-badge">'
 				. wfMessage( 'nexaboard-closed-label' )->escaped() . '</span>';
+		}
+		if ( $isDeleted ) {
+			$html .= ' <span class="mw-nexaboard-deleted-badge">'
+				. wfMessage( 'nexaboard-deleted-label' )->escaped() . '</span>';
 		}
 		$html .= ' ' . $this->renderPermalink(
 			BoardAnchor::threadUrl( $boardOwnerName, $threadId ),

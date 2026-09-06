@@ -238,8 +238,13 @@
 	background: #f9f9f9;
 }
 
+/* Deleted threads reach the page only when a moderator asked for them and holds
+   nexaboard-delete — the server decides that, so CSS must not second-guess it.
+   This rule used to be display:none, which hid them from the very toggle that
+   exists to show them. */
 .mw-nexaboard-status-deleted {
-	display: none;
+	opacity: 0.7;
+	background: #fdf3f3;
 }
 
 .mw-nexaboard-thread-header {
@@ -1092,4 +1097,14 @@
 .mw-nexaboard-edited-by-other {
 	color: #8b5a00;
 	font-style: normal;
+}
+
+/* Feedback for the deleted-and-merged toggle, so it never looks inert. */
+.mw-nexaboard-hidden-note {
+	margin: 8px 0;
+	padding: 6px 10px;
+	border-left: 3px solid #c8ccd1;
+	background: #f8f9fa;
+	color: #54595d;
+	font-size: 0.9em;
 }

@@ -678,4 +678,31 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 		$this->assertFalse( $owner->isAllowed( 'nexaboard-delete' ), 'cannot delete either' );
 	}
 
+
+	/**
+	 * The moderator view must reveal both hidden states. Deleted threads were
+	 * reaching the page and then being hidden by CSS, so the toggle appeared to
+	 * do nothing; this pins the server side of that contract.
+	 */
+	public function testModeratorListingRevealsBothDeletedAndMergedThreads(): void {
+		$actor = $this->actor();
+
+		$deleted = $this->seedThread( $actor, 'Deleted one' );
+		$this->manager()->deleteThread( $deleted['thread_id'], $actor );
+
+		$source = $this->seedThread( $actor, 'Merged one' );
+		$target = $this->seedThread( $actor, 'Destination' );
+		$this->manager()->mergeThreads( [ $source['thread_id'] ], $target['thread_id'], $actor );
+
+		$ids = static fn ( array $rows ) => array_map( static fn ( $r ) => (int)$r->nbt_id, $rows );
+
+		$plain = $ids( $this->threadStore()->getByBoardUser( $actor->getId(), 50 ) );
+		$this->assertNotContains( $deleted['thread_id'], $plain );
+		$this->assertNotContains( $source['thread_id'], $plain );
+
+		$withHidden = $ids( $this->threadStore()->getByBoardUser( $actor->getId(), 50, null, true ) );
+		$this->assertContains( $deleted['thread_id'], $withHidden, 'deleted thread revealed' );
+		$this->assertContains( $source['thread_id'], $withHidden, 'merged thread revealed' );
+	}
+
 }
