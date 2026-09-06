@@ -93,8 +93,8 @@
 	"nexaboard-replying-to": "Replying to message #$1",
 	"nexaboard-merged-from": "{{PLURAL:$1|A thread was|Threads were}} merged into this one: $2",
 	"nexaboard-edit-title-label": "Subject",
-	"nexaboard-show-deleted": "Show deleted threads",
-	"nexaboard-hide-deleted": "Hide deleted threads",
+	"nexaboard-show-deleted": "Show deleted and merged threads",
+	"nexaboard-hide-deleted": "Hide deleted and merged threads",
 	"nexaboard-bulk-select": "Select threads",
 	"nexaboard-bulk-selectall": "Select all",
 	"nexaboard-bulk-selectnone": "Clear",
@@ -136,5 +136,7 @@
 	"nexaboard-error-transfer-nouser": "That user does not exist.",
 	"nexaboard-error-transfer-same": "The thread is already on that user's board.",
 	"nexaboard-error-transfer-failed": "The thread could not be transferred.",
-	"logentry-nexaboard-transfer": "$1 {{GENDER:$2|moved}} thread #$4 “$5” from $6's board to $3"
+	"logentry-nexaboard-transfer": "$1 {{GENDER:$2|moved}} thread #$4 “$5” from $6's board to $3",
+	"nexaboard-merged-label": "MERGED",
+	"nexaboard-merged-into": "Merged into thread #$1 — its messages are there now."
 }

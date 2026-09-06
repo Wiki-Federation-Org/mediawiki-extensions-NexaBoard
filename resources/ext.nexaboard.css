@@ -1066,3 +1066,24 @@
 	font-size: 0.85em;
 	margin: 0 0 6px;
 }
+
+/* A merged source thread: visible only to moderators, and clearly historical. */
+.mw-nexaboard-status-merged {
+	opacity: 0.7;
+}
+
+.mw-nexaboard-merged-badge {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 3px;
+	background: #ede3f7;
+	color: #6b3fa0;
+	font-size: 0.75em;
+	font-weight: bold;
+	letter-spacing: 0.04em;
+}
+
+.mw-nexaboard-merged-into {
+	margin: 6px 0;
+	font-size: 0.9em;
+}

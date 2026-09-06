@@ -271,9 +271,18 @@ class SpecialNexaBoard extends SpecialPage {
 		$status    = (int)$thread->nbt_status;
 		$isClosed  = $status === ThreadStore::STATUS_CLOSED;
 		$isDeleted = $status === ThreadStore::STATUS_DELETED;
+		$isMerged  = $status === ThreadStore::STATUS_MERGED;
 
 		$canDelete = $viewer->isAllowed( 'nexaboard-delete' );
 		$canClose  = $isOwner || $viewer->isAllowed( 'nexaboard-close' );
+
+		// A merge moves every message, the originating post included, onto the
+		// destination — so a merged source has nothing left to render from. It
+		// gets a standalone tombstone built from the title the thread kept, and
+		// returns before the code below, all of which needs an OP.
+		if ( $isMerged ) {
+			return $this->renderMergedTombstone( $thread, $boardOwnerName );
+		}
 
 		// Deleted threads show their replies too, so a moderator can see what
 		// they are restoring.
@@ -306,6 +315,7 @@ class SpecialNexaBoard extends SpecialPage {
 		$classes  = 'mw-nexaboard-thread';
 		if ( $isClosed )  $classes .= ' mw-nexaboard-status-closed';
 		if ( $isDeleted ) $classes .= ' mw-nexaboard-status-deleted';
+		if ( $isMerged )  $classes .= ' mw-nexaboard-status-merged';
 
 		$html  = '<div class="' . $classes . '" id="' . BoardAnchor::threadFragment( $threadId )
 			. '" data-thread-id="' . $threadId . '">';
@@ -358,18 +368,18 @@ class SpecialNexaBoard extends SpecialPage {
 				. '</button>';
 		}
 
-		if ( !$isClosed && !$isDeleted && $viewer->isAllowed( 'nexaboard-post' ) ) {
+		if ( !$isClosed && !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-post' ) ) {
 			$html .= '<button class="mw-nexaboard-reply-btn" data-thread-id="' . $threadId . '">'
 				. wfMessage( 'nexaboard-reply-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && $this->canEditMessage( $viewer, $op, $status ) ) {
+		if ( !$isDeleted && !$isMerged && $this->canEditMessage( $viewer, $op, $status ) ) {
 			$html .= '<button class="mw-nexaboard-edit-btn" data-msg-id="' . (int)$op->nbm_id
 				. '" data-thread-id="' . $threadId . '" data-is-op="1">'
 				. wfMessage( 'nexaboard-edit-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && $viewer->isRegistered() ) {
+		if ( !$isDeleted && !$isMerged && $viewer->isRegistered() ) {
 			$following = $this->isFollowing( $viewer, $op, $replies, $followState );
 			$html .= '<button class="mw-nexaboard-follow-btn" data-thread-id="' . $threadId
 				. '" data-following="' . ( $following ? '1' : '0' ) . '">'
@@ -377,25 +387,25 @@ class SpecialNexaBoard extends SpecialPage {
 				. '</button>';
 		}
 
-		if ( !$isDeleted && $canClose ) {
+		if ( !$isDeleted && !$isMerged && $canClose ) {
 			$html .= '<button class="mw-nexaboard-close-btn" data-thread-id="' . $threadId
 				. '" data-reopen="' . ( $isClosed ? '1' : '0' ) . '">'
 				. wfMessage( $isClosed ? 'nexaboard-reopen-btn' : 'nexaboard-close-btn' )->escaped()
 				. '</button>';
 		}
 
-		if ( !$isDeleted && $viewer->isAllowed( 'nexaboard-move' ) ) {
+		if ( !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-move' ) ) {
 			$html .= '<button class="mw-nexaboard-transfer-btn" data-thread-id="' . $threadId
 				. '" data-thread-title="' . htmlspecialchars( $thread->nbt_title ) . '">'
 				. wfMessage( 'nexaboard-transfer-btn' )->escaped() . '</button>';
 		}
 
-		if ( $canDelete && $replyCount > 0 && !$isDeleted ) {
+		if ( $canDelete && $replyCount > 0 && !$isDeleted && !$isMerged ) {
 			$html .= '<button class="mw-nexaboard-delete-replies-btn" data-thread-id="' . $threadId . '">'
 				. wfMessage( 'nexaboard-delete-replies-btn' )->escaped() . '</button>';
 		}
 
-		if ( $canDelete || $isOwner ) {
+		if ( ( $canDelete || $isOwner ) && !$isMerged ) {
 			if ( $isDeleted ) {
 				$html .= '<button class="mw-nexaboard-undelete-btn" data-thread-id="' . $threadId . '">'
 					. wfMessage( 'nexaboard-undelete-btn' )->escaped() . '</button>';
@@ -417,7 +427,7 @@ class SpecialNexaBoard extends SpecialPage {
 			$html .= '</div>';
 		}
 
-		if ( !$isClosed && !$isDeleted && $viewer->isAllowed( 'nexaboard-post' ) ) {
+		if ( !$isClosed && !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-post' ) ) {
 			$html .= '<div class="mw-nexaboard-reply-form-wrap" data-thread-id="' . $threadId
 				. '" data-parent-id="" style="display:none">';
 			$html .= '<p class="mw-nexaboard-replying-to" style="display:none"></p>';
@@ -568,6 +578,9 @@ class SpecialNexaBoard extends SpecialPage {
 	): string {
 		$msgId     = (int)$reply->nbm_id;
 		$isDeleted = (int)$reply->nbm_deleted === 1;
+		// Merging moves replies to the destination, so a merged source normally has
+		// none left — but if one lingers it is history, not something to act on.
+		$isMerged  = $threadStatus === ThreadStore::STATUS_MERGED;
 		$canDelete = $viewer->isAllowed( 'nexaboard-delete' );
 
 		$authorUser = MediaWikiServices::getInstance()
@@ -617,7 +630,7 @@ class SpecialNexaBoard extends SpecialPage {
 		$threadOpen = $threadStatus === ThreadStore::STATUS_OPEN;
 
 		if (
-			!$isDeleted && $threadOpen
+			!$isDeleted && !$isMerged && $threadOpen
 			&& $depth < self::MAX_REPLY_DEPTH
 			&& $viewer->isAllowed( 'nexaboard-post' )
 		) {
@@ -626,13 +639,13 @@ class SpecialNexaBoard extends SpecialPage {
 				. wfMessage( 'nexaboard-reply-to-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && $this->canEditMessage( $viewer, $reply, $threadStatus ) ) {
+		if ( !$isDeleted && !$isMerged && $this->canEditMessage( $viewer, $reply, $threadStatus ) ) {
 			$html .= '<button class="mw-nexaboard-edit-btn" data-msg-id="' . $msgId
 				. '" data-thread-id="' . $threadId . '" data-is-op="0">'
 				. wfMessage( 'nexaboard-edit-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && $viewer->isAllowed( 'nexaboard-move' ) ) {
+		if ( !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-move' ) ) {
 			$html .= '<button class="mw-nexaboard-move-msg-btn" data-msg-id="' . $msgId
 				. '" data-thread-id="' . $threadId . '">'
 				. wfMessage( 'nexaboard-move-msg-btn' )->escaped() . '</button>';
@@ -785,6 +798,48 @@ class SpecialNexaBoard extends SpecialPage {
 	 * panel it takes a username rather than a thread, since the destination is a
 	 * board this page knows nothing about.
 	 */
+	/**
+	 * A thread that was merged away: shown only in the moderator view, as a row
+	 * that says where its messages went. Without this a merge is indistinguishable
+	 * from the thread having been destroyed.
+	 */
+	private function renderMergedTombstone( object $thread, string $boardOwnerName ): string {
+		$threadId = (int)$thread->nbt_id;
+		$targetId = (int)$thread->nbt_merged_into;
+
+		$html  = '<div class="mw-nexaboard-thread mw-nexaboard-status-merged" id="'
+			. BoardAnchor::threadFragment( $threadId )
+			. '" data-thread-id="' . $threadId . '">';
+
+		$html .= '<div class="mw-nexaboard-thread-header">';
+		$html .= '<div class="mw-nexaboard-thread-meta">';
+		$html .= '<span class="mw-nexaboard-merged-badge">'
+			. wfMessage( 'nexaboard-merged-label' )->escaped() . '</span>';
+		$html .= ' ' . $this->renderPermalink(
+			BoardAnchor::threadUrl( $boardOwnerName, $threadId ),
+			wfMessage( 'nexaboard-thread-id', $threadId )->text(),
+			wfMessage( 'nexaboard-permalink-thread-title', $threadId )->text()
+		);
+		$html .= '</div></div>';
+
+		$html .= '<h3 class="mw-nexaboard-thread-title">'
+			. htmlspecialchars( $thread->nbt_title ) . '</h3>';
+
+		if ( $targetId ) {
+			$html .= '<div class="mw-nexaboard-merged-into">'
+				. Html::element(
+					'a',
+					[ 'href' => BoardAnchor::threadUrl( $boardOwnerName, $targetId ) ],
+					wfMessage( 'nexaboard-merged-into', $targetId )->text()
+				)
+				. '</div>';
+		}
+
+		$html .= '</div>';
+
+		return $html;
+	}
+
 	private function renderTransferPanel(): string {
 		$html  = '<div class="mw-nexaboard-transfer-panel" id="mw-nexaboard-transfer-panel" style="display:none">';
 		$html .= '<h3>' . wfMessage( 'nexaboard-transfer-title' )->escaped() . '</h3>';

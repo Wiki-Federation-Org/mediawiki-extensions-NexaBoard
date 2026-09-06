@@ -74,7 +74,11 @@ class ThreadStore {
 
 		$statuses = [ self::STATUS_OPEN, self::STATUS_CLOSED ];
 		if ( $includeDeleted ) {
+			// Merged sources are listed here too. They are invisible in the normal
+			// view by design, but a merge is otherwise unrecoverable and leaves no
+			// trace on the board it vanished from — which reads as data loss.
 			$statuses[] = self::STATUS_DELETED;
+			$statuses[] = self::STATUS_MERGED;
 		}
 
 		$conds = [

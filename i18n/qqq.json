@@ -93,8 +93,8 @@
 	"nexaboard-replying-to": "Note in the reply form naming the message being replied to. Parameters:\n* $1 - the message ID",
 	"nexaboard-merged-from": "Note on a thread listing the titles of threads merged into it. Parameters:\n* $1 - the number of merged threads\n* $2 - a comma-separated list of their quoted titles",
 	"nexaboard-edit-title-label": "Label of the subject field shown when editing the first message of a thread.",
-	"nexaboard-show-deleted": "Toolbar link that reveals deleted threads. Shown only to users who can delete.",
-	"nexaboard-hide-deleted": "Toolbar link that hides deleted threads again.",
+	"nexaboard-show-deleted": "Label of the toggle that reveals deleted and merged threads to moderators.",
+	"nexaboard-hide-deleted": "Label of the toggle that hides deleted and merged threads again.",
 	"nexaboard-bulk-select": "Label of the button that turns on multi-thread selection.",
 	"nexaboard-bulk-selectall": "Label of the control that selects every thread on the page.",
 	"nexaboard-bulk-selectnone": "Label of the control that clears the thread selection.",
@@ -136,5 +136,7 @@
 	"nexaboard-error-transfer-nouser": "Error shown when the destination username does not match a registered user.",
 	"nexaboard-error-transfer-same": "Error shown when the destination board is the one the thread is already on.",
 	"nexaboard-error-transfer-failed": "Error shown when a transfer fails for any other reason.",
-	"logentry-nexaboard-transfer": "Log entry for transferring a thread between boards. Parameters:\n* $1 - the performer, linked\n* $2 - the performer's username, for GENDER\n* $3 - the destination user page, linked\n* $4 - the thread ID\n* $5 - the thread title\n* $6 - the username of the board the thread came from"
+	"logentry-nexaboard-transfer": "Log entry for transferring a thread between boards. Parameters:\n* $1 - the performer, linked\n* $2 - the performer's username, for GENDER\n* $3 - the destination user page, linked\n* $4 - the thread ID\n* $5 - the thread title\n* $6 - the username of the board the thread came from",
+	"nexaboard-merged-label": "Badge shown on a thread that was merged into another. Displayed in uppercase, alongside {{msg-mw|nexaboard-closed-label}}.",
+	"nexaboard-merged-into": "Link shown on a merged source thread, pointing at the thread its messages were moved into. Parameters:\\n* $1 - the destination thread ID"
 }

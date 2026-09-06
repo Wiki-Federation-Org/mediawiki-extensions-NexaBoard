@@ -455,4 +455,55 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 		);
 	}
 
+
+	/**
+	 * A merge moves every message onto the destination, so the source is left
+	 * with nothing. It must still be findable, or the merge is indistinguishable
+	 * from the thread having been destroyed.
+	 */
+	public function testMergedSourceStaysVisibleToModerators(): void {
+		$actor  = $this->actor();
+		$source = $this->seedThread( $actor, 'Same headline' );
+		$target = $this->seedThread( $actor, 'Same headline' );
+
+		$this->manager()->mergeThreads(
+			[ $source['thread_id'] ], $target['thread_id'], $actor, 'duplicate'
+		);
+
+		$row = $this->threadStore()->getById( $source['thread_id'] );
+		$this->assertSame( ThreadStore::STATUS_MERGED, (int)$row->nbt_status );
+		$this->assertSame( $target['thread_id'], (int)$row->nbt_merged_into );
+
+		$ids = static fn ( array $rows ) => array_map( static fn ( $r ) => (int)$r->nbt_id, $rows );
+
+		$this->assertNotContains(
+			$source['thread_id'],
+			$ids( $this->threadStore()->getByBoardUser( $actor->getId(), 50 ) ),
+			'hidden from the ordinary board view'
+		);
+		$this->assertContains(
+			$source['thread_id'],
+			$ids( $this->threadStore()->getByBoardUser( $actor->getId(), 50, null, true ) ),
+			'but a moderator can still find where it went'
+		);
+	}
+
+	public function testMergedSourceKeepsNoMessagesOfItsOwn(): void {
+		$actor  = $this->actor();
+		$source = $this->seedThread( $actor );
+		$target = $this->seedThread( $actor );
+
+		$this->manager()->mergeThreads(
+			[ $source['thread_id'] ], $target['thread_id'], $actor
+		);
+
+		$this->assertNull(
+			$this->messageStore()->getOpByThread( $source['thread_id'] ),
+			'the originating post moved to the destination with everything else'
+		);
+		$this->assertNotNull(
+			$this->messageStore()->getOpByThread( $target['thread_id'] )
+		);
+	}
+
 }
