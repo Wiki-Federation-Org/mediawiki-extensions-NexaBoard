@@ -94,21 +94,25 @@ class ApiBoardDelete extends ApiBase {
 	}
 
 	/**
-	 * Thread-level deletion needs the delete right, or ownership of the board.
+	 * Thread-level deletion needs the delete right. Owning the board is not
+	 * enough: deletion hides a thread from everyone without the right, and the
+	 * threads most worth hiding — warnings, complaints, evidence — are precisely
+	 * the ones that land on the board of the person they concern. Owners close
+	 * threads they are done with; removing them from view is moderation.
 	 */
 	private function assertCanModerateThread( $user, $thread ): void {
 		if ( $user->isAllowed( 'nexaboard-delete' ) ) {
-			return;
-		}
-		if ( $user->getId() === (int)$thread->nbt_board_user_id ) {
 			return;
 		}
 		$this->dieWithError( 'apierror-permissiondenied-generic', 'permissiondenied' );
 	}
 
 	/**
-	 * A message may be removed by a moderator, by the owner of the board it sits
-	 * on, or by its own author.
+	 * A message may be removed by a moderator, or by its own author. Board
+	 * ownership grants nothing here either — the board a message sits on is not
+	 * a licence to remove what somebody else wrote on it. This also matches what
+	 * the page renders: canDeleteMessage() never offered owners the button, so
+	 * the check here was quietly wider than the interface.
 	 */
 	private function assertCanModerateMessage( $user, $msg ): void {
 		if ( $user->isAllowed( 'nexaboard-delete' ) ) {
@@ -119,11 +123,6 @@ class ApiBoardDelete extends ApiBase {
 			$user->getId() === (int)$msg->nbm_author_id
 			&& $user->isAllowed( 'nexaboard-edit-own' )
 		) {
-			return;
-		}
-
-		$thread = $this->threadStore->getById( (int)$msg->nbm_thread_id );
-		if ( $thread && $user->getId() === (int)$thread->nbt_board_user_id ) {
 			return;
 		}
 

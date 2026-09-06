@@ -41,10 +41,17 @@ A threaded discussion board for MediaWiki 1.45+.
 | `nexaboard-merge` | sysop | Merge threads |
 | `nexaboard-move` | sysop | Move messages between threads |
 
-Board owners can additionally close and delete threads on their own board
-without holding the site-wide rights. Reopening is narrower: you may reopen a
-thread you closed yourself, but undoing someone else's close needs
-`nexaboard-close`, so a board owner cannot reverse a moderator's decision.
+Board owners can close threads on their own board without holding
+`nexaboard-close`. Reopening is narrower: you may reopen a thread you closed
+yourself, but undoing someone else's close needs the right, so a board owner
+cannot reverse a moderator's decision.
+
+Deletion is deliberately **not** granted to board owners. Closing is an owner's
+tool — "this conversation is finished" — while deleting hides a thread from
+everyone without `nexaboard-delete`. The threads most worth hiding are warnings,
+complaints and evidence, and those land on the board of the person they concern;
+letting that person remove them is a conflict of interest that logging does not
+resolve. Authors may still delete their own individual messages.
 
 Anonymous posting is controlled by granting `nexaboard-post` to `*`; it is off
 by default.

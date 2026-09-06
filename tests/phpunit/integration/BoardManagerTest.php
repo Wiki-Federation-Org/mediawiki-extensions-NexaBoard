@@ -631,4 +631,51 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 		);
 	}
 
+
+	/**
+	 * Deletion hides a thread from everyone without the right, and the threads
+	 * most worth hiding land on the board of the person they concern. Closing is
+	 * the owner's tool; deleting is not.
+	 */
+	public function testBoardOwnerHasNoDeleteRightByDefault(): void {
+		$owner = $this->getTestUser()->getUser();
+
+		$this->assertTrue( $owner->isAllowed( 'nexaboard-post' ) );
+		$this->assertTrue(
+			$owner->isAllowed( 'nexaboard-edit-own' ),
+			'authors still manage their own messages'
+		);
+		$this->assertFalse(
+			$owner->isAllowed( 'nexaboard-delete' ),
+			'owning a board must not confer deletion'
+		);
+
+		$moderator = $this->getTestSysop()->getUser();
+		$this->assertTrue( $moderator->isAllowed( 'nexaboard-delete' ) );
+	}
+
+	/**
+	 * A moderator closing a thread must not be routed around by the board owner
+	 * deleting it instead.
+	 */
+	public function testOwnerCannotRouteAroundAModeratorClose(): void {
+		$moderator = $this->getTestSysop()->getUser();
+		$owner     = $this->getTestUser()->getUser();
+
+		$thread = $this->manager()->createThread(
+			$owner->getId(), $moderator, 'Final warning', 'Stop.', NotificationMode::Suppress
+		);
+		$this->manager()->closeThread( $thread['thread_id'], $moderator, 'moderation' );
+
+		$row = $this->threadStore()->getById( $thread['thread_id'] );
+		$this->assertSame( $moderator->getId(), (int)$row->nbt_closed_by );
+
+		// Both routes out of a moderator close are shut to the owner.
+		$this->assertFalse(
+			(int)$row->nbt_closed_by === $owner->getId() || $owner->isAllowed( 'nexaboard-close' ),
+			'cannot reopen'
+		);
+		$this->assertFalse( $owner->isAllowed( 'nexaboard-delete' ), 'cannot delete either' );
+	}
+
 }

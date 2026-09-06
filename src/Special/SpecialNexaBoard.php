@@ -413,7 +413,7 @@ class SpecialNexaBoard extends SpecialPage {
 				. wfMessage( 'nexaboard-delete-replies-btn' )->escaped() . '</button>';
 		}
 
-		if ( ( $canDelete || $isOwner ) && !$isMerged ) {
+		if ( $canDelete && !$isMerged ) {
 			if ( $isDeleted ) {
 				$html .= '<button class="mw-nexaboard-undelete-btn" data-thread-id="' . $threadId . '">'
 					. wfMessage( 'nexaboard-undelete-btn' )->escaped() . '</button>';
