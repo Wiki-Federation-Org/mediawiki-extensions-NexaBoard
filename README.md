@@ -16,7 +16,6 @@ A threaded discussion board for MediaWiki 1.45+.
 - Every moderation action is written to `Special:Log/nexaboard`
 - Echo notifications for posts, replies and @mentions, deep-linked to the message
 - UserProfileV2 avatar integration with letter-fallback
-- Mobile responsive
 
 ## Installation
 
