@@ -140,5 +140,6 @@
 	"nexaboard-merged-label": "Badge shown on a thread that was merged into another. Displayed in uppercase, alongside {{msg-mw|nexaboard-closed-label}}.",
 	"nexaboard-merged-into": "Link shown on a merged source thread, pointing at the thread its messages were moved into. Parameters:\\n* $1 - the destination thread ID",
 	"nexaboard-error-reopen-notyours": "Error shown when a board owner tries to reopen a thread that somebody else — normally a moderator — closed.",
-	"nexaboard-edited-marker-by": "Marker shown under a message that was last edited by somebody other than its author. Parameters:\\n* $1 - when the edit was made\\n* $2 - the username of the editor\\nCompare {{msg-mw|nexaboard-edited-marker}}, used when the author edited their own message."
+	"nexaboard-edited-marker-by": "Marker shown under a message that was last edited by somebody other than its author. Parameters:\\n* $1 - when the edit was made\\n* $2 - the username of the editor\\nCompare {{msg-mw|nexaboard-edited-marker}}, used when the author edited their own message.",
+	"nexaboard-error-move-op": "Error shown when someone tries to move a thread's originating post into another thread. Moving it would leave the source thread with nothing to display."
 }

@@ -42,6 +42,10 @@ class ApiBoardMove extends ApiBase {
 			$this->dieWithError( [ 'apierror-invalidparameter', 'msgid' ], 'invalidmsg' );
 		}
 
+		if ( (int)$msg->nbm_is_op ) {
+			$this->dieWithError( 'nexaboard-error-move-op', 'cannotmoveop' );
+		}
+
 		if ( !$this->threadStore->getById( $targetThreadId ) ) {
 			$this->dieWithError( [ 'apierror-invalidparameter', 'targetthread' ], 'invalidthread' );
 		}

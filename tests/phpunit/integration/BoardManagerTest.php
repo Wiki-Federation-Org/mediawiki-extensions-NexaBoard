@@ -584,4 +584,51 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 		);
 	}
 
+
+	/**
+	 * Moving the originating post out would leave the source thread with nothing
+	 * to render, so it silently disappears while still counting as open.
+	 */
+	public function testTheOriginatingPostCannotBeMovedOut(): void {
+		$actor  = $this->actor();
+		$source = $this->seedThread( $actor, 'Source' );
+		$target = $this->seedThread( $actor, 'Target' );
+
+		try {
+			$this->manager()->moveMessage(
+				$source['msg_id'], $target['thread_id'], $actor
+			);
+			$this->fail( 'expected the move to be refused' );
+		} catch ( RuntimeException $e ) {
+			// expected
+		}
+
+		$this->assertNotNull(
+			$this->messageStore()->getOpByThread( $source['thread_id'] ),
+			'the source thread keeps something to render'
+		);
+	}
+
+	public function testRepliesStillMoveBetweenThreads(): void {
+		$actor  = $this->actor();
+		$source = $this->seedThread( $actor, 'Source' );
+		$target = $this->seedThread( $actor, 'Target' );
+
+		$reply = $this->manager()->reply(
+			$source['thread_id'], $actor, 'Movable', null, NotificationMode::Suppress
+		);
+		$this->manager()->moveMessage( $reply, $target['thread_id'], $actor );
+
+		$this->assertSame(
+			$target['thread_id'],
+			(int)$this->messageStore()->getById( $reply )->nbm_thread_id
+		);
+		$this->assertSame(
+			0, (int)$this->threadStore()->getById( $source['thread_id'] )->nbt_reply_count
+		);
+		$this->assertSame(
+			1, (int)$this->threadStore()->getById( $target['thread_id'] )->nbt_reply_count
+		);
+	}
+
 }

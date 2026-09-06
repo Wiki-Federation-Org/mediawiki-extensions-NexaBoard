@@ -483,6 +483,14 @@ class BoardManager {
 			throw new \RuntimeException( 'Message not found' );
 		}
 
+		// The originating post is the thread's subject line and its only
+		// renderable content: move it out and the source is left with no OP,
+		// which renders as nothing at all while still counting as an open
+		// thread. Moving a whole conversation is what transferThread() is for.
+		if ( (int)$msg->nbm_is_op ) {
+			throw new \RuntimeException( 'The originating post cannot be moved out of its thread' );
+		}
+
 		$sourceThreadId = (int)$msg->nbm_thread_id;
 
 		if ( $sourceThreadId === $targetThreadId ) {

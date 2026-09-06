@@ -51,9 +51,9 @@ class SpecialNexaBoard extends SpecialPage {
 			->newFromName( $boardUserName );
 
 		if ( !$boardUser || $boardUser->getId() === 0 ) {
-			$out->showErrorPage( 'nexaboard',
-				wfMessage( 'nexaboard-user-not-found', $boardUserName )->text()
-			);
+			// showErrorPage takes a message key; handing it rendered text makes
+			// MediaWiki treat the sentence itself as a key and print it in ⧼⧽.
+			$out->showErrorPage( 'nexaboard', 'nexaboard-user-not-found', [ $boardUserName ] );
 			return;
 		}
 

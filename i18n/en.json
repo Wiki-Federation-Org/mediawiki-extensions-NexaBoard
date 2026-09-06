@@ -140,5 +140,6 @@
 	"nexaboard-merged-label": "MERGED",
 	"nexaboard-merged-into": "Merged into thread #$1 — its messages are there now.",
 	"nexaboard-error-reopen-notyours": "Only the user who closed this thread, or a moderator, can reopen it.",
-	"nexaboard-edited-marker-by": "Edited $1 by $2"
+	"nexaboard-edited-marker-by": "Edited $1 by $2",
+	"nexaboard-error-move-op": "The first post of a thread cannot be moved on its own. Transfer the whole thread instead."
 }

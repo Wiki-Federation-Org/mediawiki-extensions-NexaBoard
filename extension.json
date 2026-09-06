@@ -110,7 +110,6 @@
 		"sysop": {
 			"nexaboard-delete": true,
 			"nexaboard-close": true,
-			"nexaboard-admin": true,
 			"nexaboard-merge": true,
 			"nexaboard-move": true,
 			"nexaboard-edit-others": true
@@ -122,7 +121,6 @@
 		"nexaboard-edit-others",
 		"nexaboard-delete",
 		"nexaboard-close",
-		"nexaboard-admin",
 		"nexaboard-merge",
 		"nexaboard-move"
 	],
@@ -149,7 +147,7 @@
 	"APIListModules": {
 		"nexaboardmessages": {
 			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiQueryBoardMessages",
-			"services": ["NexaBoard.MessageStore"]
+			"services": ["NexaBoard.MessageStore", "NexaBoard.ThreadStore"]
 		}
 	},
 	"APIModules": {
@@ -191,10 +189,6 @@
 		}
 	},
 	"config": {
-		"NexaBoardAllowAnonymous": {
-			"value": false,
-			"description": "Whether anonymous users can post on user boards"
-		},
 		"NexaBoardRedirectUserTalk": {
 			"value": true,
 			"description": "Whether plain views of User talk: pages redirect to the user's board. Subpages, history, diffs and non-view actions are never redirected."

@@ -36,20 +36,23 @@ A threaded discussion board for MediaWiki 1.45+.
 | `nexaboard-post` | logged-in users | Post messages and replies |
 | `nexaboard-edit-own` | logged-in users | Edit and delete own messages |
 | `nexaboard-edit-others` | sysop | Edit anyone's messages |
-| `nexaboard-close` | sysop | Close and reopen any thread |
+| `nexaboard-close` | sysop | Close any thread, and reopen one closed by anyone |
 | `nexaboard-delete` | sysop | Soft-delete and restore threads and messages |
 | `nexaboard-merge` | sysop | Merge threads |
 | `nexaboard-move` | sysop | Move messages between threads |
-| `nexaboard-admin` | sysop | Full moderation access |
 
-Board owners can additionally close, reopen and delete threads on their own board,
-without holding the site-wide rights.
+Board owners can additionally close and delete threads on their own board
+without holding the site-wide rights. Reopening is narrower: you may reopen a
+thread you closed yourself, but undoing someone else's close needs
+`nexaboard-close`, so a board owner cannot reverse a moderator's decision.
+
+Anonymous posting is controlled by granting `nexaboard-post` to `*`; it is off
+by default.
 
 ## Configuration
 
 | Variable | Default | Description |
 |---|---|---|
-| `$wgNexaBoardAllowAnonymous` | `false` | Allow anon posting |
 | `$wgNexaBoardThreadsPerPage` | `20` | Threads per page |
 | `$wgNexaBoardMaxTitleLength` | `200` | Max subject length |
 | `$wgNexaBoardMaxBodyLength` | `65535` | Max message length |
