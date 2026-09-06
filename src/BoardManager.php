@@ -180,6 +180,61 @@ class BoardManager {
 		return true;
 	}
 
+	/**
+	 * Move a whole thread onto another user's board.
+	 *
+	 * Unlike merge and move, which deliberately refuse to cross boards, this is
+	 * the sanctioned way across: a thread posted on the wrong person's board is
+	 * carried over with its replies rather than deleted and retyped.
+	 *
+	 * @throws \RuntimeException if the thread is gone, the target is not a real
+	 *   user, or the thread is already on that board.
+	 */
+	public function transferThread(
+		int $threadId,
+		int $targetBoardUserId,
+		User $actor,
+		string $reason = ''
+	): bool {
+		$thread = $this->threadStore->getById( $threadId );
+		if ( !$thread ) {
+			throw new \RuntimeException( 'Thread not found' );
+		}
+
+		$sourceBoardId = (int)$thread->nbt_board_user_id;
+		if ( $sourceBoardId === $targetBoardUserId ) {
+			throw new \RuntimeException( 'Thread is already on that board' );
+		}
+
+		$targetOwner = $this->userFactory->newFromId( $targetBoardUserId );
+		if ( !$targetOwner || !$targetOwner->isRegistered() ) {
+			throw new \RuntimeException( 'Target user not found' );
+		}
+
+		$now = ConvertibleTimestamp::now( TS_MW );
+		if ( !$this->threadStore->setBoardUser( $threadId, $targetBoardUserId, $now ) ) {
+			return false;
+		}
+
+		// The receiving board owner inherits the implicit follow that the original
+		// owner got when the thread was created, so they hear about replies.
+		$this->followStore->setFollowing( $threadId, $targetBoardUserId, true, $now );
+
+		$sourceOwner = $this->userFactory->newFromId( $sourceBoardId );
+
+		$this->logAction(
+			'transfer', $actor, $targetBoardUserId,
+			[
+				'4::thread' => $threadId,
+				'5::title'  => $thread->nbt_title,
+				'6::from'   => $sourceOwner ? $sourceOwner->getName() : '',
+			],
+			$reason
+		);
+
+		return true;
+	}
+
 	public function deleteThread( int $threadId, User $deleter, string $reason = '' ): bool {
 		$thread = $this->threadStore->getById( $threadId );
 		if ( !$thread ) {

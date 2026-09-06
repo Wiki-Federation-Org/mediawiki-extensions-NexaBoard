@@ -205,6 +205,7 @@ class SpecialNexaBoard extends SpecialPage {
 
 		if ( $viewer->isAllowed( 'nexaboard-move' ) && $threads ) {
 			$html .= $this->renderMovePanel( $threads );
+			$html .= $this->renderTransferPanel();
 		}
 
 		$html .= '<div class="mw-nexaboard-threads">';
@@ -292,7 +293,15 @@ class SpecialNexaBoard extends SpecialPage {
 		$parsedBody = $this->parseWikitext( $op->nbm_body );
 		$timestamp  = $this->formatTimestamp( $op->nbm_created );
 		$replies    = $this->messageStore->getRepliesByThread( $threadId, $canDelete );
-		$replyCount = count( $replies );
+		// Moderators are shown deleted replies as tombstones, but they must not
+		// be counted: a thread whose only reply was deleted reads as "1 reply"
+		// otherwise. $replies drives rendering, $replyCount drives the labels.
+		$replyCount = 0;
+		foreach ( $replies as $reply ) {
+			if ( !$reply->nbm_deleted ) {
+				$replyCount++;
+			}
+		}
 
 		$classes  = 'mw-nexaboard-thread';
 		if ( $isClosed )  $classes .= ' mw-nexaboard-status-closed';
@@ -375,6 +384,12 @@ class SpecialNexaBoard extends SpecialPage {
 				. '</button>';
 		}
 
+		if ( !$isDeleted && $viewer->isAllowed( 'nexaboard-move' ) ) {
+			$html .= '<button class="mw-nexaboard-transfer-btn" data-thread-id="' . $threadId
+				. '" data-thread-title="' . htmlspecialchars( $thread->nbt_title ) . '">'
+				. wfMessage( 'nexaboard-transfer-btn' )->escaped() . '</button>';
+		}
+
 		if ( $canDelete && $replyCount > 0 && !$isDeleted ) {
 			$html .= '<button class="mw-nexaboard-delete-replies-btn" data-thread-id="' . $threadId . '">'
 				. wfMessage( 'nexaboard-delete-replies-btn' )->escaped() . '</button>';
@@ -392,7 +407,7 @@ class SpecialNexaBoard extends SpecialPage {
 
 		$html .= '</div>';
 
-		if ( $replyCount > 0 ) {
+		if ( $replies ) {
 			$display = $replyCount <= 2 ? 'block' : 'none';
 			$html .= '<div class="mw-nexaboard-replies" data-thread-id="' . $threadId
 				. '" style="display:' . $display . '">';
@@ -765,6 +780,31 @@ class SpecialNexaBoard extends SpecialPage {
 	 * Destination picker for moving a reply between threads. Replaces the old
 	 * window.prompt(), which asked for a thread id the page never displayed.
 	 */
+	/**
+	 * Panel for moving a whole thread to another user's board. Unlike the move
+	 * panel it takes a username rather than a thread, since the destination is a
+	 * board this page knows nothing about.
+	 */
+	private function renderTransferPanel(): string {
+		$html  = '<div class="mw-nexaboard-transfer-panel" id="mw-nexaboard-transfer-panel" style="display:none">';
+		$html .= '<h3>' . wfMessage( 'nexaboard-transfer-title' )->escaped() . '</h3>';
+		$html .= '<p class="mw-nexaboard-transfer-subject" id="mw-nexaboard-transfer-subject"></p>';
+		$html .= '<label>' . wfMessage( 'nexaboard-transfer-target' )->escaped()
+			. ' <input type="text" id="mw-nexaboard-transfer-target" placeholder="'
+			. wfMessage( 'nexaboard-transfer-target-placeholder' )->escaped()
+			. '" autocomplete="off" /></label>';
+		$html .= '<input type="text" id="mw-nexaboard-transfer-reason" placeholder="'
+			. wfMessage( 'nexaboard-move-reason-placeholder' )->escaped() . '" />';
+		$html .= '<div class="mw-nexaboard-transfer-actions">';
+		$html .= '<button id="mw-nexaboard-transfer-submit">'
+			. wfMessage( 'nexaboard-transfer-submit' )->escaped() . '</button>';
+		$html .= ' <button id="mw-nexaboard-transfer-cancel">'
+			. wfMessage( 'nexaboard-cancel-btn' )->escaped() . '</button>';
+		$html .= '</div></div>';
+
+		return $html;
+	}
+
 	private function renderMovePanel( array $threads ): string {
 		$html  = '<div class="mw-nexaboard-move-panel" id="mw-nexaboard-move-panel" style="display:none">';
 		$html .= '<h3>' . wfMessage( 'nexaboard-move-title' )->escaped() . '</h3>';

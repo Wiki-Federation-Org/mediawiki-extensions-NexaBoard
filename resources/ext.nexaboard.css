@@ -657,7 +657,8 @@
 
 /* --- Move panel --- */
 
-.mw-nexaboard-move-panel {
+.mw-nexaboard-move-panel,
+.mw-nexaboard-transfer-panel {
 	border: 1px solid #ddd;
 	border-radius: 6px;
 	background: #fafafa;
@@ -665,36 +666,42 @@
 	margin: 16px 0;
 }
 
-.mw-nexaboard-move-panel h3 {
+.mw-nexaboard-move-panel h3,
+.mw-nexaboard-transfer-panel h3 {
 	margin-top: 0;
 }
 
-.mw-nexaboard-move-subject {
+.mw-nexaboard-move-subject,
+.mw-nexaboard-transfer-subject {
 	color: #555;
 	font-size: 0.9em;
 }
 
-.mw-nexaboard-move-panel label {
+.mw-nexaboard-move-panel label,
+.mw-nexaboard-transfer-panel label {
 	display: block;
 	margin-bottom: 10px;
 }
 
 .mw-nexaboard-move-panel select,
-.mw-nexaboard-move-panel input[type="text"] {
+.mw-nexaboard-move-panel input[type="text"],
+.mw-nexaboard-transfer-panel input[type="text"] {
 	max-width: 100%;
 	padding: 5px 8px;
 	border: 1px solid #ccc;
 	border-radius: 4px;
 }
 
-.mw-nexaboard-move-panel #mw-nexaboard-move-reason {
+.mw-nexaboard-move-panel #mw-nexaboard-move-reason,
+.mw-nexaboard-transfer-panel #mw-nexaboard-transfer-reason {
 	display: block;
 	width: 100%;
 	margin-bottom: 12px;
 	box-sizing: border-box;
 }
 
-.mw-nexaboard-move-actions button {
+.mw-nexaboard-move-actions button,
+.mw-nexaboard-transfer-actions button {
 	padding: 6px 14px;
 	border: 1px solid #ccc;
 	border-radius: 4px;

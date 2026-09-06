@@ -390,11 +390,14 @@
 
 				setLoading( btn, true );
 
-				api.postWithToken( 'csrf', {
-					action:   'nexaboardfollow',
-					threadid: threadId,
-					follow:   following ? 0 : 1
-				} ).then( function () {
+				// Same API-boolean rule as above: follow=0 would still read as true,
+				// so unfollowing means leaving the parameter off entirely.
+				var params = { action: 'nexaboardfollow', threadid: threadId };
+				if ( !following ) {
+					params.follow = 1;
+				}
+
+				api.postWithToken( 'csrf', params ).then( function () {
 					var now = !following;
 					btn.setAttribute( 'data-following', now ? '1' : '0' );
 					btn.textContent = mw.msg(
@@ -424,11 +427,14 @@
 
 				setLoading( btn, true );
 
-				api.postWithToken( 'csrf', {
-					action:   'nexaboardclose',
-					threadid: threadId,
-					reopen:   reopen ? 1 : 0
-				} ).then( function () {
+				// An API boolean is true whenever the parameter is present, whatever
+				// its value — sending reopen=0 would reopen, not close. Omit it.
+				var params = { action: 'nexaboardclose', threadid: threadId };
+				if ( reopen ) {
+					params.reopen = 1;
+				}
+
+				api.postWithToken( 'csrf', params ).then( function () {
 					// Closing changes which actions are available, so re-render
 					// from the server rather than patching the DOM by hand.
 					reloadTo( 'nexaboard-thread-' + threadId );
@@ -770,6 +776,79 @@
 
 	// ------------------------------------------------------------------ merge
 
+	// ------------------------------------------------ transfer to another board
+
+	function initTransferPanel() {
+		var panel = document.getElementById( 'mw-nexaboard-transfer-panel' );
+		if ( !panel ) {
+			return;
+		}
+
+		var subject = document.getElementById( 'mw-nexaboard-transfer-subject' );
+		var target  = document.getElementById( 'mw-nexaboard-transfer-target' );
+		var reason  = document.getElementById( 'mw-nexaboard-transfer-reason' );
+		var submit  = document.getElementById( 'mw-nexaboard-transfer-submit' );
+		var cancel  = document.getElementById( 'mw-nexaboard-transfer-cancel' );
+		var pending = null;
+
+		function close() {
+			panel.style.display = 'none';
+			pending = null;
+			target.value = '';
+			reason.value = '';
+		}
+
+		document.querySelectorAll( '.mw-nexaboard-transfer-btn' ).forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				pending = {
+					threadId: parseInt( btn.getAttribute( 'data-thread-id' ), 10 ),
+					title:    btn.getAttribute( 'data-thread-title' ) || ''
+				};
+				subject.textContent = mw.msg(
+					'nexaboard-transfer-subject', pending.threadId, pending.title
+				);
+				panel.style.display = 'block';
+				panel.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+				target.focus();
+			} );
+		} );
+
+		cancel.addEventListener( 'click', close );
+
+		submit.addEventListener( 'click', function () {
+			if ( !pending ) {
+				return;
+			}
+
+			var name = target.value.trim();
+			if ( !name ) {
+				showNotice( mw.msg( 'nexaboard-error-transfer-notarget' ), 'error' );
+				target.focus();
+				return;
+			}
+
+			if ( !window.confirm( mw.msg( 'nexaboard-transfer-confirm' ) ) ) {
+				return;
+			}
+
+			setLoading( submit, true );
+
+			api.postWithToken( 'csrf', {
+				action:     'nexaboardtransfer',
+				threadid:   pending.threadId,
+				targetuser: name,
+				reason:     reason.value.trim()
+			} ).then( function () {
+				// The thread now lives on another board, so there is nothing on this
+				// page to scroll back to.
+				reloadTo( null );
+			} ).catch( function ( code, data ) {
+				fail( null, code, data );
+				setLoading( submit, false );
+			} );
+		} );
+	}
+
 	function initMergePanel() {
 		var panel     = document.getElementById( 'mw-nexaboard-merge-panel' );
 		var submitBtn = document.getElementById( 'mw-nexaboard-merge-submit' );
@@ -917,6 +996,7 @@
 		initBulkPanel();
 		initMoveMsgButtons();
 		initMergePanel();
+		initTransferPanel();
 		initAnchorHighlight();
 	} );
 

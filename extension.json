@@ -87,7 +87,9 @@
 				"nexaboard-bulk-confirm-replies",
 				"nexaboard-merge-select-label",
 				"nexaboard-merge-count",
-				"nexaboard-bulk-select-label"
+				"nexaboard-bulk-select-label",
+				"nexaboard-transfer-confirm",
+				"nexaboard-error-transfer-notarget"
 			],
 			"targets": ["desktop", "mobile"]
 		}
@@ -133,6 +135,7 @@
 	"LogActionsHandlers": {
 		"nexaboard/merge": "LogFormatter",
 		"nexaboard/move": "LogFormatter",
+		"nexaboard/transfer": "LogFormatter",
 		"nexaboard/close": "LogFormatter",
 		"nexaboard/reopen": "LogFormatter",
 		"nexaboard/delete": "LogFormatter",
@@ -168,6 +171,10 @@
 		"nexaboardmerge": {
 			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardMerge",
 			"services": ["NexaBoard.Manager", "NexaBoard.ThreadStore"]
+		},
+		"nexaboardtransfer": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardTransfer",
+			"services": [ "NexaBoard.Manager", "NexaBoard.ThreadStore", "UserFactory" ]
 		},
 		"nexaboardmove": {
 			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardMove",

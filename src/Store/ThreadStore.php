@@ -119,6 +119,31 @@ class ThreadStore {
 		return $result;
 	}
 
+	/**
+	 * Move a whole thread onto another user's board.
+	 *
+	 * Deleted threads are excluded: a thread nobody can see should not be
+	 * handed to a board owner who cannot see it either.
+	 */
+	public function setBoardUser( int $threadId, int $boardUserId, string $now ): bool {
+		$dbw = $this->dbProvider->getPrimaryDatabase();
+
+		$dbw->newUpdateQueryBuilder()
+			->update( 'nexaboard_thread' )
+			->set( [
+				'nbt_board_user_id' => $boardUserId,
+				'nbt_updated'       => $now,
+			] )
+			->where( [
+				'nbt_id'     => $threadId,
+				'nbt_status' => [ self::STATUS_OPEN, self::STATUS_CLOSED ],
+			] )
+			->caller( __METHOD__ )
+			->execute();
+
+		return $dbw->affectedRows() > 0;
+	}
+
 	public function close( int $threadId, int $closedBy, string $now ): bool {
 		$dbw = $this->dbProvider->getPrimaryDatabase();
 

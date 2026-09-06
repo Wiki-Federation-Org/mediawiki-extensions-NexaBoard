@@ -351,4 +351,108 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 			$this->assertContains( $expected, $actions );
 		}
 	}
+
+	public function testTransferMovesThreadAndRepliesToAnotherBoard(): void {
+		$actor  = $this->actor();
+		$target = $this->getTestUser( 'sysop' )->getUser();
+		$this->assertNotSame( $actor->getId(), $target->getId(), 'need two distinct users' );
+
+		$thread = $this->seedThread( $actor, 'Wrong board' );
+		$this->manager()->reply(
+			$thread['thread_id'], $actor, 'A reply', null, NotificationMode::Suppress
+		);
+
+		$this->assertTrue( $this->manager()->transferThread(
+			$thread['thread_id'], $target->getId(), $actor, 'moved'
+		) );
+
+		$row = $this->threadStore()->getById( $thread['thread_id'] );
+		$this->assertSame( $target->getId(), (int)$row->nbt_board_user_id );
+		$this->assertSame( 1, (int)$row->nbt_reply_count, 'replies travel with the thread' );
+
+		$ids = static fn ( array $rows ) => array_map( static fn ( $r ) => (int)$r->nbt_id, $rows );
+		$this->assertNotContains(
+			$thread['thread_id'],
+			$ids( $this->threadStore()->getByBoardUser( $actor->getId(), 50 ) ),
+			'no longer listed on the original board'
+		);
+		$this->assertContains(
+			$thread['thread_id'],
+			$ids( $this->threadStore()->getByBoardUser( $target->getId(), 50 ) ),
+			'listed on the destination board'
+		);
+	}
+
+	public function testTransferToTheSameBoardIsRefused(): void {
+		$actor  = $this->actor();
+		$thread = $this->seedThread( $actor );
+
+		$this->expectException( RuntimeException::class );
+		$this->manager()->transferThread( $thread['thread_id'], $actor->getId(), $actor );
+	}
+
+	public function testTransferSubscribesTheReceivingBoardOwner(): void {
+		$actor  = $this->actor();
+		$target = $this->getTestUser( 'sysop' )->getUser();
+		$thread = $this->seedThread( $actor );
+
+		$this->manager()->transferThread( $thread['thread_id'], $target->getId(), $actor );
+
+		$this->assertTrue(
+			$this->followStore()->getExplicitState( $thread['thread_id'], $target->getId() ),
+			'the new board owner hears about replies'
+		);
+	}
+
+	public function testDeletedThreadIsNotTransferred(): void {
+		$actor  = $this->actor();
+		$target = $this->getTestUser( 'sysop' )->getUser();
+		$thread = $this->seedThread( $actor );
+
+		$this->manager()->deleteThread( $thread['thread_id'], $actor );
+
+		$this->assertFalse(
+			$this->manager()->transferThread( $thread['thread_id'], $target->getId(), $actor ),
+			'a thread nobody can see is not handed to another board'
+		);
+		$this->assertSame(
+			$actor->getId(),
+			(int)$this->threadStore()->getById( $thread['thread_id'] )->nbt_board_user_id
+		);
+	}
+
+	/**
+	 * Moderators see deleted replies as tombstones, so the raw row count is not
+	 * the count a reader should be shown.
+	 */
+	public function testDeletedRepliesLeaveAZeroReplyCount(): void {
+		$actor  = $this->actor();
+		$thread = $this->seedThread( $actor );
+
+		$reply = $this->manager()->reply(
+			$thread['thread_id'], $actor, 'Only reply', null, NotificationMode::Suppress
+		);
+		$this->assertSame(
+			1, (int)$this->threadStore()->getById( $thread['thread_id'] )->nbt_reply_count
+		);
+
+		$this->manager()->deleteMessage( $reply, $actor );
+
+		$this->assertSame(
+			0,
+			(int)$this->threadStore()->getById( $thread['thread_id'] )->nbt_reply_count,
+			'the stored count drops'
+		);
+		$this->assertCount(
+			0,
+			$this->messageStore()->getRepliesByThread( $thread['thread_id'], false ),
+			'nothing live is left to count'
+		);
+		$this->assertCount(
+			1,
+			$this->messageStore()->getRepliesByThread( $thread['thread_id'], true ),
+			'but the tombstone is still there for moderators'
+		);
+	}
+
 }

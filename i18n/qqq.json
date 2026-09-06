@@ -124,5 +124,17 @@
 	"logentry-nexaboard-deletereplies": "{{Logentry|and $4 is the thread ID, $5 the number of replies deleted}}",
 	"logentry-nexaboard-edit": "{{Logentry|and $4 is the message ID, $5 the thread ID}}",
 	"logentry-nexaboard-merge": "{{Logentry|and $4 is the destination thread ID, $5 a list of source thread IDs, $6 the number of source threads}}",
-	"logentry-nexaboard-move": "{{Logentry|and $4 is the message ID, $5 the source thread ID, $6 the destination thread ID}}"
+	"logentry-nexaboard-move": "{{Logentry|and $4 is the message ID, $5 the source thread ID, $6 the destination thread ID}}",
+	"nexaboard-transfer-btn": "Label of the button that opens the transfer panel, moving a whole thread to another user's board.",
+	"nexaboard-transfer-title": "Heading of the transfer panel.",
+	"nexaboard-transfer-subject": "Line in the transfer panel naming the thread being moved. Parameters:\n* $1 - the thread ID\n* $2 - the thread title",
+	"nexaboard-transfer-target": "Label for the destination username field in the transfer panel.",
+	"nexaboard-transfer-target-placeholder": "{{Identical|Username}}\nPlaceholder for the destination username field.",
+	"nexaboard-transfer-submit": "Label of the button that performs the transfer.",
+	"nexaboard-transfer-confirm": "JavaScript confirmation prompt shown before transferring a thread to another board.",
+	"nexaboard-error-transfer-notarget": "Error shown when the transfer is submitted with no destination username.",
+	"nexaboard-error-transfer-nouser": "Error shown when the destination username does not match a registered user.",
+	"nexaboard-error-transfer-same": "Error shown when the destination board is the one the thread is already on.",
+	"nexaboard-error-transfer-failed": "Error shown when a transfer fails for any other reason.",
+	"logentry-nexaboard-transfer": "Log entry for transferring a thread between boards. Parameters:\n* $1 - the performer, linked\n* $2 - the performer's username, for GENDER\n* $3 - the destination user page, linked\n* $4 - the thread ID\n* $5 - the thread title\n* $6 - the username of the board the thread came from"
 }

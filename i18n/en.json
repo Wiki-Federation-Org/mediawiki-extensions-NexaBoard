@@ -124,5 +124,17 @@
 	"logentry-nexaboard-deletereplies": "$1 {{GENDER:$2|deleted}} {{PLURAL:$5|$5 reply|$5 replies}} from thread #$4 on $3",
 	"logentry-nexaboard-edit": "$1 {{GENDER:$2|edited}} message #$4 in thread #$5 on $3",
 	"logentry-nexaboard-merge": "$1 {{GENDER:$2|merged}} {{PLURAL:$6|thread|threads}} $5 into thread #$4 on $3",
-	"logentry-nexaboard-move": "$1 {{GENDER:$2|moved}} message #$4 from thread #$5 to thread #$6 on $3"
+	"logentry-nexaboard-move": "$1 {{GENDER:$2|moved}} message #$4 from thread #$5 to thread #$6 on $3",
+	"nexaboard-transfer-btn": "Transfer",
+	"nexaboard-transfer-title": "Transfer thread to another board",
+	"nexaboard-transfer-subject": "Moving thread #$1 “$2”",
+	"nexaboard-transfer-target": "Destination user:",
+	"nexaboard-transfer-target-placeholder": "Username",
+	"nexaboard-transfer-submit": "Transfer",
+	"nexaboard-transfer-confirm": "Move this thread, with all its replies, to that user's board?",
+	"nexaboard-error-transfer-notarget": "Enter the username of the destination board.",
+	"nexaboard-error-transfer-nouser": "That user does not exist.",
+	"nexaboard-error-transfer-same": "The thread is already on that user's board.",
+	"nexaboard-error-transfer-failed": "The thread could not be transferred.",
+	"logentry-nexaboard-transfer": "$1 {{GENDER:$2|moved}} thread #$4 “$5” from $6's board to $3"
 }
