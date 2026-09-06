@@ -11,7 +11,7 @@ class MessageStore {
 	private const COLS = [
 		'nbm_id', 'nbm_thread_id', 'nbm_is_op', 'nbm_parent_id',
 		'nbm_author_id', 'nbm_author_name', 'nbm_body', 'nbm_quote_id',
-		'nbm_created', 'nbm_edited', 'nbm_deleted', 'nbm_deleted_by',
+		'nbm_created', 'nbm_edited', 'nbm_edited_by', 'nbm_deleted', 'nbm_deleted_by',
 	];
 
 	public function __construct(
@@ -192,14 +192,15 @@ class MessageStore {
 		return $dbw->affectedRows();
 	}
 
-	public function updateBody( int $msgId, string $body, string $now ): bool {
+	public function updateBody( int $msgId, string $body, string $now, int $editorId ): bool {
 		$dbw = $this->dbProvider->getPrimaryDatabase();
 
 		$dbw->newUpdateQueryBuilder()
 			->update( 'nexaboard_message' )
 			->set( [
-				'nbm_body'   => $body,
-				'nbm_edited' => $now,
+				'nbm_body'      => $body,
+				'nbm_edited'    => $now,
+				'nbm_edited_by' => $editorId,
 			] )
 			->where( [ 'nbm_id' => $msgId ] )
 			->caller( __METHOD__ )

@@ -374,7 +374,7 @@ class BoardManager {
 
 		$dbw->startAtomic( __METHOD__ );
 		try {
-			$this->messageStore->updateBody( $msgId, $body, $now );
+			$this->messageStore->updateBody( $msgId, $body, $now, $editor->getId() );
 
 			if ( $title !== null && (int)$msg->nbm_is_op ) {
 				$this->threadStore->setTitle( $threadId, $title, $now );

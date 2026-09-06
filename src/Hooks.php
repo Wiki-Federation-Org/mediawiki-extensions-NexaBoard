@@ -28,6 +28,12 @@ class Hooks {
 		$updater->addExtensionTable( 'nexaboard_message', "$sqlDir/tables-generated.sql" );
 		$updater->addExtensionTable( 'nexaboard_follow', "$sqlDir/tables-generated.sql" );
 
+		$updater->addExtensionField(
+			'nexaboard_message',
+			'nbm_edited_by',
+			"$sqlDir/patch-nexaboard_message-nbm_edited_by.sql"
+		);
+
 		$updater->addExtensionUpdate( [ [ self::class, 'createGuidelinesPage' ] ] );
 	}
 

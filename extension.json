@@ -89,7 +89,8 @@
 				"nexaboard-merge-count",
 				"nexaboard-bulk-select-label",
 				"nexaboard-transfer-confirm",
-				"nexaboard-error-transfer-notarget"
+				"nexaboard-error-transfer-notarget",
+				"nexaboard-error-reopen-notyours"
 			],
 			"targets": ["desktop", "mobile"]
 		}

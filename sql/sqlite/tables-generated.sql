@@ -29,6 +29,7 @@ CREATE TABLE /*_*/nexaboard_message (
   nbm_author_name BLOB NOT NULL, nbm_body BLOB NOT NULL,
   nbm_quote_id BIGINT UNSIGNED DEFAULT NULL,
   nbm_created BLOB NOT NULL, nbm_edited BLOB DEFAULT NULL,
+  nbm_edited_by INTEGER UNSIGNED DEFAULT NULL,
   nbm_deleted SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
   nbm_deleted_by INTEGER UNSIGNED DEFAULT NULL
 );

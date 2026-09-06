@@ -276,6 +276,14 @@ class SpecialNexaBoard extends SpecialPage {
 		$canDelete = $viewer->isAllowed( 'nexaboard-delete' );
 		$canClose  = $isOwner || $viewer->isAllowed( 'nexaboard-close' );
 
+		// Reopening is narrower than closing: you may undo your own close, but
+		// reversing someone else's — a moderator's — needs the right. Without this
+		// the button would render and then fail at the API.
+		if ( $isClosed && $canClose ) {
+			$canClose = (int)$thread->nbt_closed_by === $viewer->getId()
+				|| $viewer->isAllowed( 'nexaboard-close' );
+		}
+
 		// A merge moves every message, the originating post included, onto the
 		// destination — so a merged source has nothing left to render from. It
 		// gets a standalone tombstone built from the title the thread kept, and
@@ -675,6 +683,24 @@ class SpecialNexaBoard extends SpecialPage {
 	private function renderEditedMarker( object $msg ): string {
 		if ( $msg->nbm_edited === null || $msg->nbm_edited === '' ) {
 			return '';
+		}
+
+		// Moderators may edit a message its author can no longer touch, including
+		// in a closed thread. Saying so next to the text is the disclosure that
+		// matters — a log entry nobody reads is not one.
+		$editedBy = $msg->nbm_edited_by === null ? null : (int)$msg->nbm_edited_by;
+		$byOther  = $editedBy !== null && $editedBy !== (int)$msg->nbm_author_id;
+
+		if ( $byOther ) {
+			$editor = MediaWikiServices::getInstance()->getUserFactory()->newFromId( $editedBy );
+			$name   = $editor ? $editor->getName() : '';
+
+			return '<div class="mw-nexaboard-edited mw-nexaboard-edited-by-other">'
+				. wfMessage( 'nexaboard-edited-marker-by' )
+					->params( $this->formatTimestamp( $msg->nbm_edited ) )
+					->params( $name )
+					->escaped()
+				. '</div>';
 		}
 
 		return '<div class="mw-nexaboard-edited">'

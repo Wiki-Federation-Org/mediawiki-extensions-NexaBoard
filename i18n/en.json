@@ -138,5 +138,7 @@
 	"nexaboard-error-transfer-failed": "The thread could not be transferred.",
 	"logentry-nexaboard-transfer": "$1 {{GENDER:$2|moved}} thread #$4 “$5” from $6's board to $3",
 	"nexaboard-merged-label": "MERGED",
-	"nexaboard-merged-into": "Merged into thread #$1 — its messages are there now."
+	"nexaboard-merged-into": "Merged into thread #$1 — its messages are there now.",
+	"nexaboard-error-reopen-notyours": "Only the user who closed this thread, or a moderator, can reopen it.",
+	"nexaboard-edited-marker-by": "Edited $1 by $2"
 }

@@ -32,6 +32,7 @@ CREATE TABLE /*_*/nexaboard_message (
   nbm_quote_id BIGINT UNSIGNED DEFAULT NULL,
   nbm_created BINARY(14) NOT NULL,
   nbm_edited BINARY(14) DEFAULT NULL,
+  nbm_edited_by INT UNSIGNED DEFAULT NULL,
   nbm_deleted TINYINT UNSIGNED DEFAULT 0 NOT NULL,
   nbm_deleted_by INT UNSIGNED DEFAULT NULL,
   INDEX nbm_thread (

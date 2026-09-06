@@ -145,6 +145,12 @@
 				"options": { "notnull": false }
 			},
 			{
+				"name": "nbm_edited_by",
+				"comment": "user_id of whoever last edited the message, or NULL if never edited",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": false }
+			},
+			{
 				"name": "nbm_deleted",
 				"comment": "1 if the message has been deleted, else 0",
 				"type": "mwtinyint",

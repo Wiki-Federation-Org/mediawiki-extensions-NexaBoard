@@ -50,6 +50,16 @@ class ApiBoardClose extends ApiBase {
 				$this->dieWithError( 'apierror-permissiondenied-generic', 'permissiondenied' );
 			}
 
+			// You may reopen what you closed. Undoing someone else's close — a
+			// moderator's, in practice — takes the right, or a board owner could
+			// simply reverse a moderation decision aimed at their own board.
+			if ( $reopen
+				&& (int)$thread->nbt_closed_by !== $user->getId()
+				&& !$user->isAllowed( 'nexaboard-close' )
+			) {
+				$this->dieWithError( 'nexaboard-error-reopen-notyours', 'notyourclose' );
+			}
+
 			$ok = $reopen
 				? $this->manager->reopenThread( $threadId, $user, $reason )
 				: $this->manager->closeThread( $threadId, $user, $reason );

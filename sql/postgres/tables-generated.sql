@@ -34,6 +34,7 @@ CREATE TABLE nexaboard_message (
   nbm_quote_id BIGINT DEFAULT NULL,
   nbm_created TIMESTAMPTZ NOT NULL,
   nbm_edited TIMESTAMPTZ DEFAULT NULL,
+  nbm_edited_by INT DEFAULT NULL,
   nbm_deleted SMALLINT DEFAULT 0 NOT NULL,
   nbm_deleted_by INT DEFAULT NULL,
   PRIMARY KEY(nbm_id)

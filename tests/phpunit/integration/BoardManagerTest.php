@@ -506,4 +506,82 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 		);
 	}
 
+
+	public function testCloseRecordsWhoClosedAndReopenClearsIt(): void {
+		$actor  = $this->actor();
+		$thread = $this->seedThread( $actor );
+
+		$this->manager()->closeThread( $thread['thread_id'], $actor );
+		$this->assertSame(
+			$actor->getId(),
+			(int)$this->threadStore()->getById( $thread['thread_id'] )->nbt_closed_by,
+			'a reopen check needs to know who closed it'
+		);
+
+		$this->manager()->reopenThread( $thread['thread_id'], $actor );
+		$this->assertNull(
+			$this->threadStore()->getById( $thread['thread_id'] )->nbt_closed_by
+		);
+	}
+
+	/**
+	 * A board owner may undo their own close, but not a moderator's — otherwise
+	 * a moderation decision is reversible by the person it was aimed at.
+	 */
+	public function testOnlyTheCloserOrAModeratorMayReopen(): void {
+		$moderator = $this->actor();
+		$owner     = $this->getTestUser()->getUser();
+		$this->assertFalse( $owner->isAllowed( 'nexaboard-close' ), 'owner holds no close right' );
+
+		$thread = $this->manager()->createThread(
+			$owner->getId(), $owner, 'Owned', 'Body', NotificationMode::Suppress
+		);
+
+		$mayReopen = static fn ( $user, $row ) =>
+			(int)$row->nbt_closed_by === $user->getId()
+			|| $user->isAllowed( 'nexaboard-close' );
+
+		$this->manager()->closeThread( $thread['thread_id'], $moderator );
+		$row = $this->threadStore()->getById( $thread['thread_id'] );
+		$this->assertFalse( $mayReopen( $owner, $row ), 'owner cannot undo a moderator close' );
+		$this->assertTrue( $mayReopen( $moderator, $row ) );
+
+		$this->manager()->reopenThread( $thread['thread_id'], $moderator );
+		$this->manager()->closeThread( $thread['thread_id'], $owner );
+		$row = $this->threadStore()->getById( $thread['thread_id'] );
+		$this->assertTrue( $mayReopen( $owner, $row ), 'owner may undo their own close' );
+		$this->assertTrue( $mayReopen( $moderator, $row ) );
+	}
+
+	public function testEditRecordsWhoMadeIt(): void {
+		$author    = $this->getTestUser()->getUser();
+		$moderator = $this->actor();
+
+		$thread = $this->manager()->createThread(
+			$author->getId(), $author, 'Subject', 'Original', NotificationMode::Suppress
+		);
+		$msgId = $thread['msg_id'];
+
+		$this->assertNull(
+			$this->messageStore()->getById( $msgId )->nbm_edited_by,
+			'never edited'
+		);
+
+		$this->manager()->editMessage( $msgId, $author, 'Author revised' );
+		$msg = $this->messageStore()->getById( $msgId );
+		$this->assertSame( $author->getId(), (int)$msg->nbm_edited_by );
+		$this->assertSame(
+			(int)$msg->nbm_author_id, (int)$msg->nbm_edited_by,
+			'an author editing themselves is not disclosed as a third party'
+		);
+
+		$this->manager()->editMessage( $msgId, $moderator, 'Redacted', null, 'personal data' );
+		$msg = $this->messageStore()->getById( $msgId );
+		$this->assertSame( $moderator->getId(), (int)$msg->nbm_edited_by );
+		$this->assertNotSame(
+			(int)$msg->nbm_author_id, (int)$msg->nbm_edited_by,
+			'a moderator edit is attributable'
+		);
+	}
+
 }

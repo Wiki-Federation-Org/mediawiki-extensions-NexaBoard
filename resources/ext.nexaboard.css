@@ -1087,3 +1087,9 @@
 	margin: 6px 0;
 	font-size: 0.9em;
 }
+
+/* An edit made by somebody other than the author is disclosed, not whispered. */
+.mw-nexaboard-edited-by-other {
+	color: #8b5a00;
+	font-style: normal;
+}

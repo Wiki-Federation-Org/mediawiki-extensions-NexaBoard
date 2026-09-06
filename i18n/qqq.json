@@ -138,5 +138,7 @@
 	"nexaboard-error-transfer-failed": "Error shown when a transfer fails for any other reason.",
 	"logentry-nexaboard-transfer": "Log entry for transferring a thread between boards. Parameters:\n* $1 - the performer, linked\n* $2 - the performer's username, for GENDER\n* $3 - the destination user page, linked\n* $4 - the thread ID\n* $5 - the thread title\n* $6 - the username of the board the thread came from",
 	"nexaboard-merged-label": "Badge shown on a thread that was merged into another. Displayed in uppercase, alongside {{msg-mw|nexaboard-closed-label}}.",
-	"nexaboard-merged-into": "Link shown on a merged source thread, pointing at the thread its messages were moved into. Parameters:\\n* $1 - the destination thread ID"
+	"nexaboard-merged-into": "Link shown on a merged source thread, pointing at the thread its messages were moved into. Parameters:\\n* $1 - the destination thread ID",
+	"nexaboard-error-reopen-notyours": "Error shown when a board owner tries to reopen a thread that somebody else — normally a moderator — closed.",
+	"nexaboard-edited-marker-by": "Marker shown under a message that was last edited by somebody other than its author. Parameters:\\n* $1 - when the edit was made\\n* $2 - the username of the editor\\nCompare {{msg-mw|nexaboard-edited-marker}}, used when the author edited their own message."
 }
