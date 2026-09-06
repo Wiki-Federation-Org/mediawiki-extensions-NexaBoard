@@ -1,6 +1,6 @@
 # NexaBoard
 
-A threaded discussion board for MediaWiki 1.39+.
+A threaded discussion board for MediaWiki 1.45+.
 
 ## Features
 
