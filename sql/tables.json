@@ -1,0 +1,227 @@
+[
+	{
+		"name": "nexaboard_thread",
+		"comment": "A discussion thread on a user's board. Each thread has one originating message (the OP) plus zero or more replies stored in nexaboard_message.",
+		"columns": [
+			{
+				"name": "nbt_id",
+				"comment": "Primary key",
+				"type": "bigint",
+				"options": { "unsigned": true, "notnull": true, "autoincrement": true }
+			},
+			{
+				"name": "nbt_board_user_id",
+				"comment": "user_id of the board owner this thread belongs to",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": true }
+			},
+			{
+				"name": "nbt_title",
+				"comment": "Thread subject/headline",
+				"type": "binary",
+				"options": { "length": 200, "notnull": true }
+			},
+			{
+				"name": "nbt_status",
+				"comment": "0 = open, 1 = closed, 2 = deleted, 3 = merged",
+				"type": "mwtinyint",
+				"options": { "unsigned": true, "notnull": true, "default": 0 }
+			},
+			{
+				"name": "nbt_reply_count",
+				"comment": "Cached number of replies in this thread",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": true, "default": 0 }
+			},
+			{
+				"name": "nbt_created",
+				"comment": "Timestamp the thread was created",
+				"type": "mwtimestamp",
+				"options": { "notnull": true }
+			},
+			{
+				"name": "nbt_updated",
+				"comment": "Timestamp of the most recent activity in the thread",
+				"type": "mwtimestamp",
+				"options": { "notnull": true }
+			},
+			{
+				"name": "nbt_closed_by",
+				"comment": "user_id of the user who closed the thread, or NULL",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": false }
+			},
+			{
+				"name": "nbt_deleted_by",
+				"comment": "user_id of the user who deleted the thread, or NULL",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": false }
+			},
+			{
+				"name": "nbt_merged_into",
+				"comment": "nbt_id of the thread this one was merged into, or NULL",
+				"type": "bigint",
+				"options": { "unsigned": true, "notnull": false }
+			}
+		],
+		"indexes": [
+			{
+				"name": "nbt_board",
+				"comment": "Listing a board's threads by status, newest activity first",
+				"columns": [ "nbt_board_user_id", "nbt_status", "nbt_updated" ],
+				"unique": false
+			},
+			{
+				"name": "nbt_merged",
+				"comment": "Finding threads merged into a given thread",
+				"columns": [ "nbt_merged_into" ],
+				"unique": false
+			}
+		],
+		"pk": [ "nbt_id" ]
+	},
+	{
+		"name": "nexaboard_message",
+		"comment": "An individual message within a nexaboard_thread: either the originating post (nbm_is_op = 1) or a reply.",
+		"columns": [
+			{
+				"name": "nbm_id",
+				"comment": "Primary key",
+				"type": "bigint",
+				"options": { "unsigned": true, "notnull": true, "autoincrement": true }
+			},
+			{
+				"name": "nbm_thread_id",
+				"comment": "nbt_id of the thread this message belongs to",
+				"type": "bigint",
+				"options": { "unsigned": true, "notnull": true }
+			},
+			{
+				"name": "nbm_is_op",
+				"comment": "1 if this is the originating post of the thread, else 0",
+				"type": "mwtinyint",
+				"options": { "unsigned": true, "notnull": true, "default": 0 }
+			},
+			{
+				"name": "nbm_parent_id",
+				"comment": "nbm_id of the message being replied to, or NULL",
+				"type": "bigint",
+				"options": { "unsigned": true, "notnull": false }
+			},
+			{
+				"name": "nbm_author_id",
+				"comment": "user_id of the message author",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": true }
+			},
+			{
+				"name": "nbm_author_name",
+				"comment": "Author username at the time of posting",
+				"type": "binary",
+				"options": { "length": 255, "notnull": true }
+			},
+			{
+				"name": "nbm_body",
+				"comment": "Message body (wikitext)",
+				"type": "blob",
+				"options": { "length": 65535, "notnull": true }
+			},
+			{
+				"name": "nbm_quote_id",
+				"comment": "nbm_id of a quoted message, or NULL",
+				"type": "bigint",
+				"options": { "unsigned": true, "notnull": false }
+			},
+			{
+				"name": "nbm_created",
+				"comment": "Timestamp the message was created",
+				"type": "mwtimestamp",
+				"options": { "notnull": true }
+			},
+			{
+				"name": "nbm_edited",
+				"comment": "Timestamp the message was last edited, or NULL",
+				"type": "mwtimestamp",
+				"options": { "notnull": false }
+			},
+			{
+				"name": "nbm_deleted",
+				"comment": "1 if the message has been deleted, else 0",
+				"type": "mwtinyint",
+				"options": { "unsigned": true, "notnull": true, "default": 0 }
+			},
+			{
+				"name": "nbm_deleted_by",
+				"comment": "user_id of the user who deleted the message, or NULL",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": false }
+			}
+		],
+		"indexes": [
+			{
+				"name": "nbm_thread",
+				"comment": "Listing a thread's messages, oldest first, excluding deleted",
+				"columns": [ "nbm_thread_id", "nbm_deleted", "nbm_created" ],
+				"unique": false
+			},
+			{
+				"name": "nbm_parent",
+				"comment": "Finding replies to a given message",
+				"columns": [ "nbm_parent_id" ],
+				"unique": false
+			},
+			{
+				"name": "nbm_author",
+				"comment": "Finding a user's messages",
+				"columns": [ "nbm_author_id" ],
+				"unique": false
+			},
+			{
+				"name": "nbm_quote",
+				"comment": "Finding messages quoting a given message",
+				"columns": [ "nbm_quote_id" ],
+				"unique": false
+			}
+		],
+		"pk": [ "nbm_id" ]
+	},
+	{
+		"name": "nexaboard_follow",
+		"comment": "Per-user follow state for a thread. A row exists only once a user has explicitly followed or unfollowed; implicit following (having posted in the thread) is derived from nexaboard_message.",
+		"columns": [
+			{
+				"name": "nbf_thread_id",
+				"comment": "nbt_id of the thread being followed",
+				"type": "bigint",
+				"options": { "unsigned": true, "notnull": true }
+			},
+			{
+				"name": "nbf_user_id",
+				"comment": "user_id of the following user",
+				"type": "integer",
+				"options": { "unsigned": true, "notnull": true }
+			},
+			{
+				"name": "nbf_muted",
+				"comment": "1 if the user explicitly unfollowed, suppressing the implicit participant follow, else 0",
+				"type": "mwtinyint",
+				"options": { "unsigned": true, "notnull": true, "default": 0 }
+			},
+			{
+				"name": "nbf_created",
+				"comment": "Timestamp the follow state was last set",
+				"type": "mwtimestamp",
+				"options": { "notnull": true }
+			}
+		],
+		"indexes": [
+			{
+				"name": "nbf_user",
+				"comment": "Listing the threads a user follows",
+				"columns": [ "nbf_user_id", "nbf_thread_id" ],
+				"unique": false
+			}
+		],
+		"pk": [ "nbf_thread_id", "nbf_user_id" ]
+	}
+]

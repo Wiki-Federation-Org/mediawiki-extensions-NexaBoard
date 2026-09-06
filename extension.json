@@ -1,0 +1,208 @@
+{
+	"name": "NexaBoard",
+	"version": "0.2.0",
+	"author": ["NexaWiki"],
+	"url": "https://nexawiki.com",
+	"descriptionmsg": "nexaboard-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "specialpage",
+	"requires": {
+		"MediaWiki": ">= 1.45.0"
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\NexaBoard\\": "src/"
+	},
+	"ServiceWiringFiles": ["ServiceWiring.php"],
+	"SpecialPages": {
+		"NexaBoard": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Special\\SpecialNexaBoard",
+			"services": [
+				"NexaBoard.Manager",
+				"NexaBoard.ThreadStore",
+				"NexaBoard.MessageStore",
+				"NexaBoard.FollowStore"
+			]
+		}
+	},
+	"Hooks": {
+		"LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\NexaBoard\\Hooks::onLoadExtensionSchemaUpdates",
+		"BeforePageDisplay": "MediaWiki\\Extension\\NexaBoard\\Hooks::onBeforePageDisplay",
+		"BeforeInitialize": "MediaWiki\\Extension\\NexaBoard\\Hooks::onBeforeInitialize",
+		"SkinTemplateNavigation::Universal": "MediaWiki\\Extension\\NexaBoard\\Hooks::onSkinTemplateNavigationUniversal",
+		"SetupAfterCache": "MediaWiki\\Extension\\NexaBoard\\Hooks::onSetupAfterCache"
+	},
+	"MessagesDirs": {
+		"NexaBoard": ["i18n"]
+	},
+	"ExtensionMessagesFiles": {
+		"NexaBoardAlias": "NexaBoard.alias.php"
+	},
+	"ResourceModules": {
+		"ext.nexaboard.styles": {
+			"styles": ["resources/ext.nexaboard.css"],
+			"targets": ["desktop", "mobile"]
+		},
+		"ext.nexaboard.links": {
+			"scripts": ["resources/ext.nexaboard.links.js"],
+			"dependencies": ["mediawiki.util"],
+			"targets": ["desktop", "mobile"],
+			"messages": ["nexaboard-link-board"]
+		},
+		"ext.nexaboard.scripts": {
+			"scripts": ["resources/ext.nexaboard.js"],
+			"dependencies": [
+				"mediawiki.api",
+				"oojs-ui-core",
+				"mediawiki.user",
+				"mediawiki.jqueryMsg"
+			],
+			"messages": [
+				"nexaboard-delete-confirm",
+				"nexaboard-close-confirm",
+				"nexaboard-merge-confirm",
+				"nexaboard-move-confirm",
+				"nexaboard-error-generic",
+				"nexaboard-error-move-thread",
+				"nexaboard-cancel-btn",
+				"nexaboard-show-replies",
+				"nexaboard-hide-replies",
+				"nexaboard-error-notitle",
+				"nexaboard-error-nobody",
+				"nexaboard-error-move-same",
+				"nexaboard-error-merge-self",
+				"nexaboard-move-subject",
+				"nexaboard-save-btn",
+				"nexaboard-edit-title-label",
+				"nexaboard-replying-to",
+				"nexaboard-follow-btn",
+				"nexaboard-unfollow-btn",
+				"nexaboard-reopen-confirm",
+				"nexaboard-undelete-confirm",
+				"nexaboard-delete-msg-confirm",
+				"nexaboard-undelete-msg-confirm",
+				"nexaboard-delete-replies-confirm",
+				"nexaboard-bulk-select",
+				"nexaboard-bulk-count",
+				"nexaboard-bulk-confirm-threads",
+				"nexaboard-bulk-confirm-replies",
+				"nexaboard-merge-select-label",
+				"nexaboard-merge-count",
+				"nexaboard-bulk-select-label"
+			],
+			"targets": ["desktop", "mobile"]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "NexaBoard"
+	},
+	"GroupPermissions": {
+		"*": {
+			"nexaboard-post": false
+		},
+		"user": {
+			"nexaboard-post": true,
+			"nexaboard-edit-own": true
+		},
+		"sysop": {
+			"nexaboard-delete": true,
+			"nexaboard-close": true,
+			"nexaboard-admin": true,
+			"nexaboard-merge": true,
+			"nexaboard-move": true,
+			"nexaboard-edit-others": true
+		}
+	},
+	"AvailableRights": [
+		"nexaboard-post",
+		"nexaboard-edit-own",
+		"nexaboard-edit-others",
+		"nexaboard-delete",
+		"nexaboard-close",
+		"nexaboard-admin",
+		"nexaboard-merge",
+		"nexaboard-move"
+	],
+	"LogTypes": ["nexaboard"],
+	"LogNames": {
+		"nexaboard": "nexaboard-log-name"
+	},
+	"LogHeaders": {
+		"nexaboard": "nexaboard-log-header"
+	},
+	"LogActionsHandlers": {
+		"nexaboard/merge": "LogFormatter",
+		"nexaboard/move": "LogFormatter",
+		"nexaboard/close": "LogFormatter",
+		"nexaboard/reopen": "LogFormatter",
+		"nexaboard/delete": "LogFormatter",
+		"nexaboard/undelete": "LogFormatter",
+		"nexaboard/deletemsg": "LogFormatter",
+		"nexaboard/undeletemsg": "LogFormatter",
+		"nexaboard/deletereplies": "LogFormatter",
+		"nexaboard/edit": "LogFormatter"
+	},
+	"APIListModules": {
+		"nexaboardmessages": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiQueryBoardMessages",
+			"services": ["NexaBoard.MessageStore"]
+		}
+	},
+	"APIModules": {
+		"nexaboardpost": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardPost",
+			"services": ["NexaBoard.Manager"]
+		},
+		"nexaboardreply": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardReply",
+			"services": ["NexaBoard.Manager"]
+		},
+		"nexaboarddelete": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardDelete",
+			"services": ["NexaBoard.Manager", "NexaBoard.ThreadStore", "NexaBoard.MessageStore"]
+		},
+		"nexaboardclose": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardClose",
+			"services": ["NexaBoard.Manager", "NexaBoard.ThreadStore"]
+		},
+		"nexaboardmerge": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardMerge",
+			"services": ["NexaBoard.Manager", "NexaBoard.ThreadStore"]
+		},
+		"nexaboardmove": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardMove",
+			"services": ["NexaBoard.Manager", "NexaBoard.MessageStore", "NexaBoard.ThreadStore"]
+		},
+		"nexaboardedit": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardEdit",
+			"services": ["NexaBoard.Manager", "NexaBoard.MessageStore", "NexaBoard.ThreadStore"]
+		},
+		"nexaboardfollow": {
+			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardFollow",
+			"services": ["NexaBoard.Manager", "NexaBoard.ThreadStore"]
+		}
+	},
+	"config": {
+		"NexaBoardAllowAnonymous": {
+			"value": false,
+			"description": "Whether anonymous users can post on user boards"
+		},
+		"NexaBoardRedirectUserTalk": {
+			"value": true,
+			"description": "Whether plain views of User talk: pages redirect to the user's board. Subpages, history, diffs and non-view actions are never redirected."
+		},
+		"NexaBoardThreadsPerPage": {
+			"value": 20,
+			"description": "Number of threads to show per page"
+		},
+		"NexaBoardMaxTitleLength": {
+			"value": 200,
+			"description": "Maximum character length for thread titles"
+		},
+		"NexaBoardMaxBodyLength": {
+			"value": 65535,
+			"description": "Maximum character length for message bodies"
+		}
+	},
+	"manifest_version": 2
+}

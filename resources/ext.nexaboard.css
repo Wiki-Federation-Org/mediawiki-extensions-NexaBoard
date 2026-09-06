@@ -1,0 +1,1061 @@
+
+
+.mw-user-tabbar {
+	margin-bottom: 20px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.mw-user-tabbar-inner {
+	display: flex;
+	gap: 0;
+	align-items: stretch;
+}
+
+.mw-user-tab {
+	display: inline-flex;
+	align-items: center;
+	padding: 14px 16px;
+	font-size: 14.5px;
+	font-weight: 400;
+	color: #72777d;
+	text-decoration: none;
+	border-bottom: 3px solid transparent;
+	margin-bottom: -1px;
+	transition: color 0.15s ease, border-color 0.15s ease;
+	margin-right: 8px;
+}
+
+.mw-user-tab:hover {
+	color: #444;
+	text-decoration: none;
+}
+
+.mw-user-tab--active {
+	font-weight: 700;
+	color: #a7143c;
+	border-bottom-color: #a7143c;
+}
+
+.mw-user-tab--active:hover {
+	color: #a7143c;
+}
+
+.mw-nexaboard {
+	max-width: 860px;
+	margin: 0 auto;
+	padding: 16px;
+	font-family: inherit;
+}
+
+.mw-nexaboard-welcome {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-left: 4px solid #a7143c;
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin-bottom: 16px;
+	box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.mw-nexaboard-welcome-title {
+	font-size: 1.05em;
+	font-weight: 700;
+	color: #1a1a1a;
+	margin-bottom: 6px;
+}
+
+.mw-nexaboard-welcome-body {
+	font-size: 0.92em;
+	color: #54595d;
+	line-height: 1.5;
+}
+
+.mw-nexaboard-header {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.mw-nexaboard-header-info h2 {
+	margin: 0 0 4px;
+	font-size: 1.4em;
+	font-weight: 700;
+}
+
+.mw-nexaboard-header-info h2 a {
+	color: #1a73e8;
+	text-decoration: none;
+}
+
+.mw-nexaboard-header-info h2 a:hover {
+	text-decoration: underline;
+}
+
+.mw-nexaboard-owner-note {
+	margin: 0;
+	font-size: 0.85em;
+	color: #666;
+}
+
+.mw-nexaboard-avatar,
+.mw-nexaboard-avatar-fallback {
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	font-weight: 700;
+	object-fit: cover;
+}
+
+.mw-nexaboard-avatar-large,
+.mw-nexaboard-avatar-fallback.mw-nexaboard-avatar-large {
+	width: 64px;
+	height: 64px;
+	font-size: 1.6em;
+	color: #fff;
+}
+
+.mw-nexaboard-avatar-medium,
+.mw-nexaboard-avatar-fallback.mw-nexaboard-avatar-medium {
+	width: 40px;
+	height: 40px;
+	font-size: 1.1em;
+	color: #fff;
+}
+
+.mw-nexaboard-avatar-small,
+.mw-nexaboard-avatar-fallback.mw-nexaboard-avatar-small {
+	width: 32px;
+	height: 32px;
+	font-size: 0.9em;
+	color: #fff;
+}
+
+.mw-nexaboard-newmsg {
+	margin-bottom: 24px;
+}
+
+.mw-nexaboard-newmsg-btn {
+	background: #1a73e8;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	padding: 10px 20px;
+	font-size: 0.95em;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.mw-nexaboard-newmsg-btn:hover {
+	background: #1558b0;
+}
+
+.mw-nexaboard-newmsg-form {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 20px;
+	margin-top: 12px;
+	box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+.mw-nexaboard-newmsg-form h3 {
+	margin: 0 0 14px;
+	font-size: 1.05em;
+	font-weight: 600;
+}
+
+.mw-nexaboard-title-input,
+.mw-nexaboard-body-input {
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 9px 12px;
+	font-size: 0.95em;
+	font-family: inherit;
+	margin-bottom: 10px;
+	transition: border-color 0.15s;
+}
+
+.mw-nexaboard-title-input:focus,
+.mw-nexaboard-body-input:focus {
+	outline: none;
+	border-color: #1a73e8;
+	box-shadow: 0 0 0 2px rgba(26,115,232,.15);
+}
+
+.mw-nexaboard-body-input {
+	min-height: 100px;
+	resize: vertical;
+}
+
+.mw-nexaboard-newmsg-actions {
+	display: flex;
+	gap: 10px;
+	margin-top: 4px;
+}
+
+.mw-nexaboard-login-notice {
+	background: #f8f9fa;
+	border: 1px solid #e0e0e0;
+	border-radius: 6px;
+	padding: 12px 16px;
+	margin-bottom: 20px;
+	font-size: 0.9em;
+	color: #555;
+}
+
+.mw-nexaboard-threads {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.mw-nexaboard-thread {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 18px 20px;
+	box-shadow: 0 1px 3px rgba(0,0,0,.05);
+	transition: box-shadow 0.15s;
+}
+
+.mw-nexaboard-thread:hover {
+	box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+.mw-nexaboard-status-closed {
+	opacity: 0.72;
+	background: #f9f9f9;
+}
+
+.mw-nexaboard-status-deleted {
+	display: none;
+}
+
+.mw-nexaboard-thread-header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 10px;
+}
+
+.mw-nexaboard-thread-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.88em;
+	color: #555;
+}
+
+.mw-nexaboard-thread-author a {
+	font-weight: 600;
+	color: #1a73e8;
+	text-decoration: none;
+}
+
+.mw-nexaboard-thread-author a:hover {
+	text-decoration: underline;
+}
+
+.mw-nexaboard-thread-time {
+	color: #999;
+}
+
+.mw-nexaboard-closed-badge {
+	background: #e0e0e0;
+	color: #555;
+	font-size: 0.75em;
+	font-weight: 700;
+	padding: 2px 6px;
+	border-radius: 3px;
+	letter-spacing: 0.04em;
+}
+
+.mw-nexaboard-thread-title {
+	margin: 0 0 10px;
+	font-size: 1.05em;
+	font-weight: 700;
+	color: #202124;
+}
+
+.mw-nexaboard-thread-body {
+	font-size: 0.95em;
+	line-height: 1.6;
+	color: #333;
+	word-break: break-word;
+}
+
+.mw-nexaboard-thread-body p:first-child { margin-top: 0; }
+.mw-nexaboard-thread-body p:last-child  { margin-bottom: 0; }
+
+.mw-nexaboard-thread-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f0;
+}
+
+.mw-nexaboard-thread-actions button {
+	background: none;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 5px 12px;
+	font-size: 0.85em;
+	cursor: pointer;
+	color: #555;
+	transition: background 0.12s, color 0.12s;
+}
+
+.mw-nexaboard-thread-actions button:hover {
+	background: #f5f5f5;
+	color: #333;
+}
+
+.mw-nexaboard-toggle-replies {
+	color: #1a73e8 !important;
+	border-color: #1a73e8 !important;
+}
+
+.mw-nexaboard-toggle-replies:hover {
+	background: #e8f0fe !important;
+}
+
+.mw-nexaboard-close-btn {
+	color: #e67e22 !important;
+}
+
+.mw-nexaboard-delete-btn {
+	color: #e74c3c !important;
+}
+
+.mw-nexaboard-replies {
+	margin-top: 14px;
+	padding: 14px 14px 10px;
+	background: #f8f9fa;
+	border-radius: 6px;
+}
+
+.mw-nexaboard-reply-content {
+	flex: 1;
+}
+
+.mw-nexaboard-reply-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 6px;
+	font-size: 0.85em;
+	color: #666;
+	margin-bottom: 3px;
+	line-height: 1.4;
+}
+
+.mw-nexaboard-reply-author {
+	font-weight: 600;
+	color: #1a73e8 !important;
+	text-decoration: none;
+}
+
+.mw-nexaboard-reply-author:hover {
+	text-decoration: underline;
+}
+
+.mw-nexaboard-reply-time {
+	color: #9aa0a6;
+	font-size: 0.94em;
+}
+
+.mw-nexaboard-reply-body {
+	font-size: 0.92em;
+	line-height: 1.55;
+	color: #333;
+}
+
+.mw-nexaboard-reply-body p:first-child { margin-top: 0; }
+.mw-nexaboard-reply-body p:last-child  { margin-bottom: 0; }
+
+.mw-nexaboard-reply-form-wrap {
+	margin-top: 12px;
+	padding: 12px;
+	background: #f8f9fa;
+	border-radius: 6px;
+}
+
+.mw-nexaboard-reply-input {
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 8px 10px;
+	font-size: 0.92em;
+	font-family: inherit;
+	min-height: 70px;
+	resize: vertical;
+	transition: border-color 0.15s;
+}
+
+.mw-nexaboard-reply-input:focus {
+	outline: none;
+	border-color: #1a73e8;
+	box-shadow: 0 0 0 2px rgba(26,115,232,.15);
+}
+
+.mw-nexaboard-reply-form-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.mw-nexaboard-newmsg-actions button,
+.mw-nexaboard-reply-submit,
+.mw-nexaboard-reply-cancel {
+	border-radius: 5px;
+	padding: 7px 16px;
+	font-size: 0.9em;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: background 0.12s;
+}
+
+#mw-nexaboard-submit,
+.mw-nexaboard-reply-submit {
+	background: #1a73e8;
+	color: #fff;
+	border-color: #1a73e8;
+	font-weight: 600;
+}
+
+#mw-nexaboard-submit:hover,
+.mw-nexaboard-reply-submit:hover {
+	background: #1558b0;
+}
+
+#mw-nexaboard-cancel,
+.mw-nexaboard-reply-cancel {
+	background: #f1f3f4;
+	color: #333;
+	border-color: #ddd;
+}
+
+#mw-nexaboard-cancel:hover,
+.mw-nexaboard-reply-cancel:hover {
+	background: #e0e0e0;
+}
+
+.mw-nexaboard-empty {
+	text-align: center;
+	padding: 40px 20px;
+	color: #888;
+	font-size: 0.95em;
+	background: #fff;
+	border: 1px dashed #ddd;
+	border-radius: 8px;
+}
+
+.mw-nexaboard-pagination {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+	margin-top: 24px;
+}
+
+.mw-nexaboard-page-btn {
+	display: inline-block;
+	padding: 8px 20px;
+	border: 1px solid #1a73e8;
+	border-radius: 5px;
+	color: #1a73e8;
+	text-decoration: none;
+	font-size: 0.9em;
+	transition: background 0.12s;
+}
+
+.mw-nexaboard-page-btn:hover {
+	background: #e8f0fe;
+}
+
+.mw-nexaboard-notice {
+	padding: 10px 14px;
+	border-radius: 5px;
+	font-size: 0.9em;
+	margin: 10px 0;
+}
+
+.mw-nexaboard-notice-success {
+	background: #e6f4ea;
+	border: 1px solid #81c995;
+	color: #137333;
+}
+
+.mw-nexaboard-notice-error {
+	background: #fce8e6;
+	border: 1px solid #f28b82;
+	color: #c5221f;
+}
+
+@media (max-width: 600px) {
+	.mw-nexaboard {
+		padding: 10px;
+	}
+
+	.mw-nexaboard-header {
+		padding: 14px;
+	}
+
+	.mw-nexaboard-thread {
+		padding: 14px;
+	}
+
+	.mw-nexaboard-thread-actions {
+		gap: 6px;
+	}
+
+	.mw-nexaboard-thread-actions button {
+		padding: 4px 9px;
+		font-size: 0.8em;
+	}
+
+	.mw-nexaboard-replies {
+		padding: 10px;
+	}
+
+	.mw-nexaboard-avatar-large,
+	.mw-nexaboard-avatar-fallback.mw-nexaboard-avatar-large {
+		width: 48px;
+		height: 48px;
+		font-size: 1.3em;
+	}
+}
+
+.mw-nexaboard-merge-trigger-btn {
+	background: none;
+	border: 1px solid #aaa;
+	border-radius: 4px;
+	padding: 5px 12px;
+	font-size: 0.85em;
+	cursor: pointer;
+	color: #555;
+	margin-bottom: 12px;
+	transition: background 0.12s, color 0.12s;
+}
+
+.mw-nexaboard-merge-trigger-btn:hover {
+	background: #f5f5f5;
+	color: #333;
+}
+
+.mw-nexaboard-merge-panel {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+
+.mw-nexaboard-merge-panel h3 {
+	margin: 0 0 8px;
+	font-size: 1em;
+	font-weight: 600;
+}
+
+.mw-nexaboard-merge-panel p {
+	margin: 0 0 12px;
+	font-size: 0.88em;
+	color: #666;
+}
+
+.mw-nexaboard-merge-panel select,
+.mw-nexaboard-merge-panel input[type=text] {
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	padding: 6px 10px;
+	font-size: 0.9em;
+	font-family: inherit;
+	margin: 6px 0;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.mw-nexaboard-merge-panel label {
+	display: block;
+	font-size: 0.9em;
+	margin-bottom: 8px;
+}
+
+.mw-nexaboard-merge-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+.mw-nexaboard-merge-check {
+	cursor: pointer;
+}
+
+.mw-nexaboard-move-msg-btn {
+	background: none;
+	border: none;
+	color: #999;
+	font-size: 0.8em;
+	cursor: pointer;
+	padding: 2px 6px;
+	margin-left: 4px;
+	border-radius: 3px;
+	transition: color 0.12s, background 0.12s;
+}
+
+.mw-nexaboard-move-msg-btn:hover {
+	color: #555;
+	background: #f0f0f0;
+}
+
+/* --- Permalinks and anchor targets --- */
+
+.mw-nexaboard-permalink {
+	color: #888;
+	font-size: 0.82em;
+	text-decoration: none;
+	font-variant-numeric: tabular-nums;
+}
+
+.mw-nexaboard-permalink:hover,
+.mw-nexaboard-permalink:focus {
+	color: #1a73e8;
+	text-decoration: underline;
+}
+
+.mw-nexaboard-anchor-target {
+	animation: mw-nexaboard-flash 2s ease-out 1;
+}
+
+@keyframes mw-nexaboard-flash {
+	from { background-color: #fff3c4; }
+	to   { background-color: transparent; }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.mw-nexaboard-anchor-target {
+		animation: none;
+		box-shadow: 0 0 0 2px #f5c518;
+	}
+}
+
+/* --- Move panel --- */
+
+.mw-nexaboard-move-panel {
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	background: #fafafa;
+	padding: 16px;
+	margin: 16px 0;
+}
+
+.mw-nexaboard-move-panel h3 {
+	margin-top: 0;
+}
+
+.mw-nexaboard-move-subject {
+	color: #555;
+	font-size: 0.9em;
+}
+
+.mw-nexaboard-move-panel label {
+	display: block;
+	margin-bottom: 10px;
+}
+
+.mw-nexaboard-move-panel select,
+.mw-nexaboard-move-panel input[type="text"] {
+	max-width: 100%;
+	padding: 5px 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.mw-nexaboard-move-panel #mw-nexaboard-move-reason {
+	display: block;
+	width: 100%;
+	margin-bottom: 12px;
+	box-sizing: border-box;
+}
+
+.mw-nexaboard-move-actions button {
+	padding: 6px 14px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.mw-nexaboard-move-actions button:hover {
+	background: #f0f0f0;
+}
+
+/* --- Toolbar and sorting --- */
+
+.mw-nexaboard-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+	align-items: center;
+	margin: 12px 0;
+	font-size: 0.9em;
+	color: #666;
+}
+
+.mw-nexaboard-sort-active {
+	font-weight: bold;
+}
+
+/* --- Bulk selection --- */
+
+.mw-nexaboard-bulk {
+	margin: 12px 0;
+}
+
+.mw-nexaboard-bulk-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	background: #fafafa;
+	padding: 12px;
+}
+
+.mw-nexaboard-bulk-actions input[type="text"] {
+	flex: 1 1 180px;
+	padding: 5px 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.mw-nexaboard-bulk-count {
+	color: #555;
+}
+
+.mw-nexaboard-bulk-link {
+	background: none;
+	border: none;
+	color: #1a73e8;
+	cursor: pointer;
+	padding: 0;
+}
+
+.mw-nexaboard-bulk-toggle,
+.mw-nexaboard-bulk-actions button:not( .mw-nexaboard-bulk-link ) {
+	padding: 5px 12px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+}
+
+/* Selection controls only appear while a selection mode is active. */
+.mw-nexaboard-select-label {
+	display: none;
+}
+
+.mw-nexaboard-selectable .mw-nexaboard-select-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 10px;
+	padding: 4px 8px;
+	border: 1px dashed #c9c9c9;
+	border-radius: 4px;
+	background: #fbfbfb;
+	font-size: 0.85em;
+	color: #555;
+	cursor: pointer;
+	width: fit-content;
+}
+
+.mw-nexaboard-selectable .mw-nexaboard-select-label:hover {
+	border-color: #1a73e8;
+	color: #1a73e8;
+}
+
+.mw-nexaboard-select-check {
+	margin: 0;
+}
+
+.mw-nexaboard-merge-count {
+	color: #555;
+	font-size: 0.9em;
+}
+
+/* --- Nested replies -------------------------------------------------------
+ *
+ * Geometry is anchored to the small avatar: 32px wide with a 10px gutter, so
+ * its centre sits at x=16 and a child column starts at x=42. The rail is drawn
+ * down that centre line and each child hangs off it with a curved elbow, which
+ * keeps every level aligned to the avatar it belongs to.
+ */
+
+:root {
+	--nb-avatar-sm: 32px;
+	--nb-gutter: 10px;
+	--nb-rail-x: 16px;                          /* avatar centre */
+	--nb-indent: 42px;                          /* avatar + gutter */
+	--nb-rail: #dfe3e8;
+	--nb-rail-hover: #1a73e8;
+}
+
+.mw-nexaboard-reply {
+	display: block;
+	position: relative;
+}
+
+.mw-nexaboard-reply-main {
+	display: flex;
+	gap: var(--nb-gutter);
+	align-items: flex-start;
+	padding: 4px 6px 4px 0;
+	border-radius: 6px;
+	transition: background-color 0.12s;
+}
+
+.mw-nexaboard-reply-main:hover {
+	background: #fafbfc;
+}
+
+.mw-nexaboard-reply + .mw-nexaboard-reply {
+	margin-top: 2px;
+}
+
+/* The child column, with the rail running down the parent's avatar centre. */
+.mw-nexaboard-reply-children {
+	position: relative;
+	padding-left: var(--nb-indent);
+	margin-top: 2px;
+}
+
+/* Rail: a hairline that is also the collapse control. */
+.mw-nexaboard-thread-line {
+	position: absolute;
+	left: var(--nb-rail-x);
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	padding: 0;
+	border: 0;
+	border-radius: 1px;
+	background: var(--nb-rail);
+	cursor: pointer;
+	z-index: 1;
+}
+
+/* Widen the pointer target without widening the line. */
+.mw-nexaboard-thread-line-hit {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -7px;
+	right: -7px;
+}
+
+.mw-nexaboard-thread-line:hover,
+.mw-nexaboard-thread-line:focus-visible {
+	background: var(--nb-rail-hover);
+	outline: none;
+}
+
+/*
+ * A 2px line gives no hint that it does anything, so hovering it previews the
+ * branch it would collapse. The rail precedes its replies in the DOM, which is
+ * what makes the sibling selector work.
+ */
+.mw-nexaboard-thread-line:hover ~ .mw-nexaboard-reply .mw-nexaboard-reply-main,
+.mw-nexaboard-thread-line:focus-visible ~ .mw-nexaboard-reply .mw-nexaboard-reply-main {
+	background: #eef4fd;
+}
+
+.mw-nexaboard-thread-line:hover ~ .mw-nexaboard-reply::before,
+.mw-nexaboard-thread-line:focus-visible ~ .mw-nexaboard-reply::before {
+	border-color: var(--nb-rail-hover);
+}
+
+/* Elbow from the rail across to each child's avatar. */
+.mw-nexaboard-reply-children > .mw-nexaboard-reply::before {
+	content: '';
+	position: absolute;
+	left: calc( var(--nb-rail-x) - var(--nb-indent) );
+	top: -2px;
+	width: calc( var(--nb-indent) - var(--nb-rail-x) - 6px );
+	height: 18px;
+	border-left: 2px solid var(--nb-rail);
+	border-bottom: 2px solid var(--nb-rail);
+	border-bottom-left-radius: 8px;
+	pointer-events: none;
+}
+
+/* Collapsed branch: hide the children, keep a chip to bring them back. */
+.mw-nexaboard-reply-children.is-collapsed > .mw-nexaboard-reply,
+.mw-nexaboard-reply-children.is-collapsed > .mw-nexaboard-thread-line {
+	display: none;
+}
+
+.mw-nexaboard-expand-chip {
+	display: inline-block;
+	margin: 2px 0 6px -26px;
+	padding: 2px 10px;
+	border: 1px solid var(--nb-rail);
+	border-radius: 999px;
+	background: #f6f8fa;
+	font-size: 0.8em;
+	color: #555;
+	cursor: pointer;
+}
+
+.mw-nexaboard-expand-chip:hover {
+	border-color: var(--nb-rail-hover);
+	color: var(--nb-rail-hover);
+}
+
+/* Actions stay present but recede until the reply is hovered or focused. */
+.mw-nexaboard-reply-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 5px;
+	opacity: 0.55;
+	transition: opacity 0.12s;
+}
+
+.mw-nexaboard-reply-main:hover .mw-nexaboard-reply-actions,
+.mw-nexaboard-reply-actions:focus-within {
+	opacity: 1;
+}
+
+.mw-nexaboard-reply-actions button {
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: 0.82em;
+	color: #6b7280;
+	cursor: pointer;
+}
+
+.mw-nexaboard-reply-actions button:hover,
+.mw-nexaboard-reply-actions button:focus-visible {
+	color: var(--nb-rail-hover);
+	text-decoration: underline;
+}
+
+/* Touch devices have no hover, so never hide affordances behind it. */
+@media ( hover: none ) {
+	.mw-nexaboard-reply-actions { opacity: 1; }
+}
+
+/* Deep threads stop indenting rather than marching off the page. */
+.mw-nexaboard-reply[data-depth="4"] .mw-nexaboard-reply-children {
+	padding-left: 20px;
+}
+
+.mw-nexaboard-reply[data-depth="4"] .mw-nexaboard-reply-children > .mw-nexaboard-reply::before {
+	display: none;
+}
+
+@media ( max-width: 640px ) {
+	.mw-nexaboard-reply-children {
+		padding-left: 24px;
+	}
+	.mw-nexaboard-reply-children > .mw-nexaboard-reply::before {
+		width: 8px;
+	}
+}
+
+/* --- Deleted messages and edit markers --- */
+
+.mw-nexaboard-reply-deleted {
+	opacity: 0.7;
+}
+
+.mw-nexaboard-tombstone {
+	color: #888;
+	font-style: italic;
+}
+
+.mw-nexaboard-deleted-badge {
+	background: #d33;
+	color: #fff;
+	border-radius: 3px;
+	padding: 1px 5px;
+	font-size: 0.72em;
+	letter-spacing: 0.04em;
+}
+
+.mw-nexaboard-edited {
+	color: #888;
+	font-size: 0.8em;
+	margin-top: 4px;
+}
+
+.mw-nexaboard-merged-note {
+	color: #666;
+	font-size: 0.85em;
+	background: #f4f7fb;
+	border-left: 3px solid #c2d4ec;
+	padding: 6px 10px;
+	margin: 8px 0;
+}
+
+/* --- Inline editing --- */
+
+.mw-nexaboard-edit-form label {
+	display: block;
+	margin-bottom: 8px;
+}
+
+.mw-nexaboard-edit-title {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.mw-nexaboard-edit-input {
+	width: 100%;
+	min-height: 110px;
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+	font-family: inherit;
+}
+
+.mw-nexaboard-edit-actions {
+	margin-top: 8px;
+}
+
+.mw-nexaboard-edit-actions button {
+	padding: 5px 14px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.mw-nexaboard-replying-to {
+	color: #555;
+	font-size: 0.85em;
+	margin: 0 0 6px;
+}
