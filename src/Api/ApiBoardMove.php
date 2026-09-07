@@ -5,6 +5,7 @@ namespace MediaWiki\Extension\NexaBoard\Api;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiMain;
 use MediaWiki\Api\ApiUsageException;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\Extension\NexaBoard\Store\MessageStore;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
@@ -44,6 +45,14 @@ class ApiBoardMove extends ApiBase {
 
 		if ( (int)$msg->nbm_is_op ) {
 			$this->dieWithError( 'nexaboard-error-move-op', 'cannotmoveop' );
+		}
+
+		$sourceThread = $this->threadStore->getById( (int)$msg->nbm_thread_id );
+		if ( $sourceThread ) {
+			$block = BoardBlock::affectingThread( $user, $sourceThread );
+			if ( $block ) {
+				$this->dieBlocked( $block );
+			}
 		}
 
 		if ( !$this->threadStore->getById( $targetThreadId ) ) {

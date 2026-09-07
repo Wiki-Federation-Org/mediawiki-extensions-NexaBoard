@@ -4,6 +4,7 @@ namespace MediaWiki\Extension\NexaBoard\Api;
 
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiMain;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\Extension\NexaBoard\Store\MessageStore;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
@@ -55,12 +56,23 @@ class ApiBoardDelete extends ApiBase {
 			if ( !$thread ) {
 				$this->dieWithError( [ 'apierror-invalidparameter', 'threadid' ], 'invalidthread' );
 			}
+			$block = BoardBlock::affectingThread( $user, $thread );
+			if ( $block ) {
+				$this->dieBlocked( $block );
+			}
 			$this->assertCanModerateThread( $user, $thread );
 		}
 		foreach ( $msgIds as $msgId ) {
 			$msg = $this->messageStore->getById( $msgId );
 			if ( !$msg ) {
 				$this->dieWithError( [ 'apierror-invalidparameter', 'msgid' ], 'invalidmsg' );
+			}
+			$msgThread = $this->threadStore->getById( (int)$msg->nbm_thread_id );
+			if ( $msgThread ) {
+				$block = BoardBlock::affectingThread( $user, $msgThread );
+				if ( $block ) {
+					$this->dieBlocked( $block );
+				}
 			}
 			$this->assertCanModerateMessage( $user, $msg );
 		}

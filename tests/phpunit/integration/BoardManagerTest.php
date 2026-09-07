@@ -6,6 +6,7 @@ use MediaWiki\Extension\NexaBoard\NotificationMode;
 use MediaWiki\Extension\NexaBoard\Store\FollowStore;
 use MediaWiki\Extension\NexaBoard\Store\MessageStore;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\User\User;
 use MediaWikiIntegrationTestCase;
@@ -822,6 +823,86 @@ class BoardManagerTest extends MediaWikiIntegrationTestCase {
 		$before = $count();
 		$this->assertSame( 0, $this->manager()->deleteAllReplies( $thread['thread_id'], $actor ) );
 		$this->assertSame( $before, $count(), 'a no-op does not reach the moderation log' );
+	}
+
+
+	private function blockUser( $target, array $restrictions = [] ): void {
+		$this->getServiceContainer()->getBlockUserFactory()->newBlockUser(
+			$target,
+			$this->getTestSysop()->getUser(),
+			'infinity',
+			'test block',
+			[],
+			$restrictions
+		)->placeBlock( true );
+	}
+
+	/**
+	 * isAllowed() is a right lookup and knows nothing about blocks, and
+	 * ApiMain::checkExecutePermissions() does not check them either — so without
+	 * an explicit check a sitewide-blocked user could post on every board.
+	 */
+	public function testSitewideBlockStopsActionOnOtherPeoplesBoards(): void {
+		$owner   = $this->getTestUser()->getUser();
+		$blocked = $this->getMutableTestUser()->getUser();
+
+		$this->assertNull( BoardBlock::affecting( $blocked, $owner->getId() ), 'clean before the block' );
+
+		$this->blockUser( $blocked );
+		$blocked->clearInstanceCache();
+
+		$this->assertTrue(
+			$blocked->isAllowed( 'nexaboard-post' ),
+			'the right itself is untouched — which is exactly why the block needs its own check'
+		);
+		$this->assertNotNull(
+			BoardBlock::affecting( $blocked, $owner->getId() ),
+			'but the block stops them acting on the board'
+		);
+	}
+
+	public function testUnblockedUsersAreUnaffected(): void {
+		$owner = $this->getTestUser()->getUser();
+		$other = $this->getMutableTestUser()->getUser();
+
+		$this->assertNull( BoardBlock::affecting( $other, $owner->getId() ) );
+	}
+
+	/**
+	 * A board stands in for its owner's talk page, so a partial block scoped
+	 * elsewhere must not reach it.
+	 */
+	public function testPartialBlockElsewhereDoesNotReachBoards(): void {
+		$owner   = $this->getTestUser()->getUser();
+		$blocked = $this->getMutableTestUser()->getUser();
+
+		$page = $this->getExistingTestPage( 'NexaBoard block scope probe' );
+		$this->blockUser( $blocked, [
+			\MediaWiki\Block\Restriction\PageRestriction::newFromRow(
+				(object)[ 'ir_ipb_id' => 0, 'ir_type' => 1, 'ir_value' => $page->getId() ]
+			),
+		] );
+		$blocked->clearInstanceCache();
+
+		$this->assertNull(
+			BoardBlock::affecting( $blocked, $owner->getId() ),
+			'a page block somewhere else leaves boards alone'
+		);
+	}
+
+	public function testNamespaceBlockOnUserTalkCoversEveryBoard(): void {
+		$owner   = $this->getTestUser()->getUser();
+		$blocked = $this->getMutableTestUser()->getUser();
+
+		$this->blockUser( $blocked, [
+			new \MediaWiki\Block\Restriction\NamespaceRestriction( 0, NS_USER_TALK ),
+		] );
+		$blocked->clearInstanceCache();
+
+		$this->assertNotNull(
+			BoardBlock::affecting( $blocked, $owner->getId() ),
+			'blocking the User talk namespace blocks the boards that replace it'
+		);
 	}
 
 }

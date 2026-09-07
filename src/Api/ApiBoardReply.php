@@ -6,6 +6,7 @@ use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiMain;
 use MediaWiki\Api\ApiUsageException;
 use MediaWiki\Extension\NexaBoard\NotificationMode;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
 use MediaWiki\MediaWikiServices;
@@ -17,7 +18,8 @@ class ApiBoardReply extends ApiBase {
 	public function __construct(
 		ApiMain $mainModule,
 		string $moduleName,
-		private readonly BoardManager $manager
+		private readonly BoardManager $manager,
+		private readonly ThreadStore $threadStore
 	) {
 		parent::__construct( $mainModule, $moduleName );
 	}
@@ -49,6 +51,16 @@ class ApiBoardReply extends ApiBase {
 		}
 		if ( strlen( $body ) > MessageStore::MAX_BODY_BYTES ) {
 			$this->dieWithError( 'nexaboard-error-toolong-storage', 'bodytoolongbytes' );
+		}
+
+		$thread = $this->threadStore->getById( $threadId );
+		if ( !$thread ) {
+			$this->dieWithError( [ 'apierror-invalidparameter', 'threadid' ], 'invalidthread' );
+		}
+
+		$block = BoardBlock::affectingThread( $user, $thread );
+		if ( $block ) {
+			$this->dieBlocked( $block );
 		}
 
 		try {

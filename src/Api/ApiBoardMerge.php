@@ -5,6 +5,7 @@ namespace MediaWiki\Extension\NexaBoard\Api;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiMain;
 use MediaWiki\Api\ApiUsageException;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -43,6 +44,11 @@ class ApiBoardMerge extends ApiBase {
 		}
 		if ( !in_array( (int)$target->nbt_status, $mergeable, true ) ) {
 			$this->dieWithError( 'nexaboard-error-merge-target-state', 'targetnotmergeable' );
+		}
+
+		$block = BoardBlock::affectingThread( $user, $target );
+		if ( $block ) {
+			$this->dieBlocked( $block );
 		}
 
 		// Everything is validated before anything is merged: the manager applies

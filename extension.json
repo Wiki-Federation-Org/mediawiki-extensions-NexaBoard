@@ -158,7 +158,7 @@
 		},
 		"nexaboardreply": {
 			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardReply",
-			"services": ["NexaBoard.Manager"]
+			"services": ["NexaBoard.Manager", "NexaBoard.ThreadStore"]
 		},
 		"nexaboarddelete": {
 			"class": "MediaWiki\\Extension\\NexaBoard\\Api\\ApiBoardDelete",

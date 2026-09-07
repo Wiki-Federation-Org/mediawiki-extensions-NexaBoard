@@ -4,6 +4,7 @@ namespace MediaWiki\Extension\NexaBoard\Api;
 
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiMain;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -37,6 +38,11 @@ class ApiBoardFollow extends ApiBase {
 		$thread = $this->threadStore->getById( $threadId );
 		if ( !$thread ) {
 			$this->dieWithError( [ 'apierror-invalidparameter', 'threadid' ], 'invalidthread' );
+		}
+
+		$block = BoardBlock::affectingThread( $user, $thread );
+		if ( $block ) {
+			$this->dieBlocked( $block );
 		}
 
 		$this->manager->setFollowing( $threadId, $user, $follow );

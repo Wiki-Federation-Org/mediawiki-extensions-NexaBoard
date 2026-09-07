@@ -4,6 +4,7 @@ namespace MediaWiki\Extension\NexaBoard\Special;
 
 use MediaWiki\Extension\NexaBoard\AvatarHelper;
 use MediaWiki\Extension\NexaBoard\BoardAnchor;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\Extension\NexaBoard\Store\FollowStore;
 use MediaWiki\Extension\NexaBoard\Store\MessageStore;
@@ -134,7 +135,10 @@ class SpecialNexaBoard extends SpecialPage {
 		$maxTitle   = $config->get( 'NexaBoardMaxTitleLength' );
 		$boardUserId = $boardUser->getId();
 		$isOwner    = $viewer->isRegistered() && $viewer->getId() === $boardUserId;
-		$canPost    = $viewer->isAllowed( 'nexaboard-post' );
+		// isAllowed() knows nothing about blocks, so a blocked user would still be
+		// shown the form and only find out on submit.
+		$block      = BoardBlock::affecting( $viewer, $boardUserId );
+		$canPost    = $viewer->isAllowed( 'nexaboard-post' ) && !$block;
 		$canMerge   = $viewer->isAllowed( 'nexaboard-merge' );
 		$canDelete  = $viewer->isAllowed( 'nexaboard-delete' );
 
@@ -179,6 +183,10 @@ class SpecialNexaBoard extends SpecialPage {
 
 		if ( $canPost ) {
 			$html .= $this->renderNewMessageForm( $boardUser->getName(), $maxTitle );
+		} elseif ( $block ) {
+			$html .= '<div class="mw-nexaboard-login-notice mw-nexaboard-blocked-notice">'
+				. wfMessage( 'nexaboard-blocked' )->escaped()
+				. '</div>';
 		} elseif ( !$viewer->isRegistered() ) {
 			$html .= '<div class="mw-nexaboard-login-notice">'
 				. wfMessage( 'nexaboard-login-required' )->parse()
@@ -239,7 +247,8 @@ class SpecialNexaBoard extends SpecialPage {
 				$html .= $this->renderThread(
 					$thread, $viewer, $isOwner, $boardUser->getName(),
 					$followStates[$tid] ?? null,
-					$mergedTitles[$tid] ?? []
+					$mergedTitles[$tid] ?? [],
+					(bool)$block
 				);
 			}
 		}
@@ -284,7 +293,8 @@ class SpecialNexaBoard extends SpecialPage {
 		bool $isOwner,
 		string $boardOwnerName,
 		?bool $followState = null,
-		array $mergedFrom = []
+		array $mergedFrom = [],
+		bool $blocked = false
 	): string {
 		$threadId  = (int)$thread->nbt_id;
 		$status    = (int)$thread->nbt_status;
@@ -399,18 +409,18 @@ class SpecialNexaBoard extends SpecialPage {
 				. '</button>';
 		}
 
-		if ( !$isClosed && !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-post' ) ) {
+		if ( !$isClosed && !$isDeleted && !$isMerged && !$blocked && $viewer->isAllowed( 'nexaboard-post' ) ) {
 			$html .= '<button class="mw-nexaboard-reply-btn" data-thread-id="' . $threadId . '">'
 				. wfMessage( 'nexaboard-reply-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && !$isMerged && $this->canEditMessage( $viewer, $op, $status ) ) {
+		if ( !$isDeleted && !$isMerged && !$blocked && $this->canEditMessage( $viewer, $op, $status ) ) {
 			$html .= '<button class="mw-nexaboard-edit-btn" data-msg-id="' . (int)$op->nbm_id
 				. '" data-thread-id="' . $threadId . '" data-is-op="1">'
 				. wfMessage( 'nexaboard-edit-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && !$isMerged && $viewer->isRegistered() ) {
+		if ( !$isDeleted && !$isMerged && !$blocked && $viewer->isRegistered() ) {
 			$following = $this->isFollowing( $viewer, $op, $replies, $followState );
 			$html .= '<button class="mw-nexaboard-follow-btn" data-thread-id="' . $threadId
 				. '" data-following="' . ( $following ? '1' : '0' ) . '">'
@@ -418,25 +428,25 @@ class SpecialNexaBoard extends SpecialPage {
 				. '</button>';
 		}
 
-		if ( !$isDeleted && !$isMerged && $canClose ) {
+		if ( !$isDeleted && !$isMerged && !$blocked && $canClose ) {
 			$html .= '<button class="mw-nexaboard-close-btn" data-thread-id="' . $threadId
 				. '" data-reopen="' . ( $isClosed ? '1' : '0' ) . '">'
 				. wfMessage( $isClosed ? 'nexaboard-reopen-btn' : 'nexaboard-close-btn' )->escaped()
 				. '</button>';
 		}
 
-		if ( !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-move' ) ) {
+		if ( !$isDeleted && !$isMerged && !$blocked && $viewer->isAllowed( 'nexaboard-move' ) ) {
 			$html .= '<button class="mw-nexaboard-transfer-btn" data-thread-id="' . $threadId
 				. '" data-thread-title="' . htmlspecialchars( $thread->nbt_title ) . '">'
 				. wfMessage( 'nexaboard-transfer-btn' )->escaped() . '</button>';
 		}
 
-		if ( $canDelete && $replyCount > 0 && !$isDeleted && !$isMerged ) {
+		if ( $canDelete && $replyCount > 0 && !$isDeleted && !$isMerged && !$blocked ) {
 			$html .= '<button class="mw-nexaboard-delete-replies-btn" data-thread-id="' . $threadId . '">'
 				. wfMessage( 'nexaboard-delete-replies-btn' )->escaped() . '</button>';
 		}
 
-		if ( $canDelete && !$isMerged ) {
+		if ( $canDelete && !$isMerged && !$blocked ) {
 			if ( $isDeleted ) {
 				$html .= '<button class="mw-nexaboard-undelete-btn" data-thread-id="' . $threadId . '">'
 					. wfMessage( 'nexaboard-undelete-btn' )->escaped() . '</button>';
@@ -453,12 +463,12 @@ class SpecialNexaBoard extends SpecialPage {
 			$html .= '<div class="mw-nexaboard-replies" data-thread-id="' . $threadId
 				. '" style="display:' . $display . '">';
 			$html .= $this->renderReplyTree(
-				$replies, $viewer, $threadId, $boardOwnerName, $status
+				$replies, $viewer, $threadId, $boardOwnerName, $status, $blocked
 			);
 			$html .= '</div>';
 		}
 
-		if ( !$isClosed && !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-post' ) ) {
+		if ( !$isClosed && !$isDeleted && !$isMerged && !$blocked && $viewer->isAllowed( 'nexaboard-post' ) ) {
 			$html .= '<div class="mw-nexaboard-reply-form-wrap" data-thread-id="' . $threadId
 				. '" data-parent-id="" style="display:none">';
 			$html .= '<p class="mw-nexaboard-replying-to" style="display:none"></p>';
@@ -487,7 +497,8 @@ class SpecialNexaBoard extends SpecialPage {
 		\MediaWiki\User\User $viewer,
 		int $threadId,
 		string $boardOwnerName,
-		int $threadStatus
+		int $threadStatus,
+		bool $blocked = false
 	): string {
 		$byParent = [];
 		$present  = [];
@@ -509,7 +520,7 @@ class SpecialNexaBoard extends SpecialPage {
 		}
 
 		return $this->renderReplyLevel(
-			$byParent, 0, $viewer, $threadId, $boardOwnerName, $threadStatus, 0
+			$byParent, 0, $viewer, $threadId, $boardOwnerName, $threadStatus, 0, $blocked
 		);
 	}
 
@@ -527,7 +538,8 @@ class SpecialNexaBoard extends SpecialPage {
 		int $threadId,
 		string $boardOwnerName,
 		int $threadStatus,
-		int $depth
+		int $depth,
+		bool $blocked = false
 	): string {
 		if ( empty( $byParent[$parentId] ) ) {
 			return '';
@@ -551,7 +563,7 @@ class SpecialNexaBoard extends SpecialPage {
 				. '" data-msg-id="' . $msgId . '" data-depth="' . $depth . '">';
 
 			$html .= $this->renderReply(
-				$reply, $viewer, $threadId, $boardOwnerName, $threadStatus, $depth
+				$reply, $viewer, $threadId, $boardOwnerName, $threadStatus, $depth, $blocked
 			);
 
 			if ( $children ) {
@@ -573,7 +585,7 @@ class SpecialNexaBoard extends SpecialPage {
 
 				$html .= $this->renderReplyLevel(
 					$byParent, $msgId, $viewer, $threadId, $boardOwnerName,
-					$threadStatus, min( $depth + 1, self::MAX_REPLY_DEPTH )
+					$threadStatus, min( $depth + 1, self::MAX_REPLY_DEPTH ), $blocked
 				);
 
 				$html .= '</div>';
@@ -605,7 +617,8 @@ class SpecialNexaBoard extends SpecialPage {
 		int $threadId,
 		string $boardOwnerName,
 		int $threadStatus,
-		int $depth = 0
+		int $depth = 0,
+		bool $blocked = false
 	): string {
 		$msgId     = (int)$reply->nbm_id;
 		$isDeleted = (int)$reply->nbm_deleted === 1;
@@ -661,7 +674,7 @@ class SpecialNexaBoard extends SpecialPage {
 		$threadOpen = $threadStatus === ThreadStore::STATUS_OPEN;
 
 		if (
-			!$isDeleted && !$isMerged && $threadOpen
+			!$isDeleted && !$isMerged && !$blocked && $threadOpen
 			&& $depth < self::MAX_REPLY_DEPTH
 			&& $viewer->isAllowed( 'nexaboard-post' )
 		) {
@@ -670,19 +683,19 @@ class SpecialNexaBoard extends SpecialPage {
 				. wfMessage( 'nexaboard-reply-to-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && !$isMerged && $this->canEditMessage( $viewer, $reply, $threadStatus ) ) {
+		if ( !$isDeleted && !$isMerged && !$blocked && $this->canEditMessage( $viewer, $reply, $threadStatus ) ) {
 			$html .= '<button class="mw-nexaboard-edit-btn" data-msg-id="' . $msgId
 				. '" data-thread-id="' . $threadId . '" data-is-op="0">'
 				. wfMessage( 'nexaboard-edit-btn' )->escaped() . '</button>';
 		}
 
-		if ( !$isDeleted && !$isMerged && $viewer->isAllowed( 'nexaboard-move' ) ) {
+		if ( !$isDeleted && !$isMerged && !$blocked && $viewer->isAllowed( 'nexaboard-move' ) ) {
 			$html .= '<button class="mw-nexaboard-move-msg-btn" data-msg-id="' . $msgId
 				. '" data-thread-id="' . $threadId . '">'
 				. wfMessage( 'nexaboard-move-msg-btn' )->escaped() . '</button>';
 		}
 
-		if ( $this->canDeleteMessage( $viewer, $reply ) ) {
+		if ( !$blocked && $this->canDeleteMessage( $viewer, $reply ) ) {
 			if ( $isDeleted ) {
 				if ( $canDelete ) {
 					$html .= '<button class="mw-nexaboard-undelete-msg-btn" data-msg-id="' . $msgId . '">'

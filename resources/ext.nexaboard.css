@@ -1108,3 +1108,10 @@
 	color: #54595d;
 	font-size: 0.9em;
 }
+
+/* Shown in place of the posting form to a blocked user. */
+.mw-nexaboard-blocked-notice {
+	border-left: 3px solid #d33;
+	background: #fdf3f3;
+	color: #8b2020;
+}

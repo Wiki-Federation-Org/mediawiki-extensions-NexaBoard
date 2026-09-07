@@ -5,6 +5,7 @@ namespace MediaWiki\Extension\NexaBoard\Api;
 use MediaWiki\Api\ApiBase;
 use MediaWiki\Api\ApiMain;
 use MediaWiki\Api\ApiUsageException;
+use MediaWiki\Extension\NexaBoard\BoardBlock;
 use MediaWiki\Extension\NexaBoard\BoardManager;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Extension\NexaBoard\Store\ThreadStore;
@@ -67,6 +68,11 @@ class ApiBoardPost extends ApiBase {
 
 		if ( !$boardUser || $boardUser->getId() === 0 ) {
 			$this->dieWithError( [ 'nexaboard-user-not-found', $params['boarduser'] ], 'usernotfound' );
+		}
+
+		$block = BoardBlock::affecting( $user, $boardUser->getId() );
+		if ( $block ) {
+			$this->dieBlocked( $block );
 		}
 
 		try {
